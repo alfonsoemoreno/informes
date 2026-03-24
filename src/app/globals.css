@@ -1,13 +1,17 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "@neondatabase/auth/ui/css";
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #f5efe2;
+  --surface: rgba(255, 252, 247, 0.86);
+  --surface-strong: #fffaf1;
+  --foreground: #1d1b16;
+  --muted: #665f52;
+  --border: rgba(72, 52, 24, 0.12);
+  --accent: #8f3e16;
+  --accent-strong: #5e2308;
+  --accent-soft: #f0d6b7;
+  --success: #2f6b3b;
+  --shadow: 0 24px 80px rgba(77, 48, 13, 0.14);
 }
 
 html {
@@ -25,8 +29,11 @@ body {
   display: flex;
   flex-direction: column;
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(201, 128, 61, 0.22), transparent 32%),
+    radial-gradient(circle at top right, rgba(78, 128, 101, 0.18), transparent 28%),
+    linear-gradient(180deg, #fcf7ee 0%, var(--background) 100%);
+  font-family: var(--font-geist-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,8 +49,184 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-geist-mono), monospace;
+  letter-spacing: -0.04em;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  color: #fffaf1;
+  background: var(--accent);
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
+  background: rgba(245, 239, 226, 0.74);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+}
+
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pill-link {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 250, 241, 0.8);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.pill-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(143, 62, 22, 0.26);
+  background: #fffdf8;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-button-fallback {
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: #fff7ef;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+
+.page-section {
+  padding: 40px 0 72px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.page-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(47, 107, 59, 0.16);
+  background: rgba(47, 107, 59, 0.08);
+  color: var(--success);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.empty-state {
+  padding: 28px;
+  border-radius: 22px;
+  border: 1px dashed rgba(143, 62, 22, 0.24);
+  background: rgba(255, 250, 241, 0.74);
+  color: var(--muted);
+}
+
+.auth-card {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.auth-card-header {
+  margin-bottom: 20px;
+}
+
+.auth-card-header h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 8px;
+}
+
+.auth-card-header p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .topbar-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .topbar-nav,
+  .user-area {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .page-section {
+    padding-top: 24px;
+    padding-bottom: 48px;
   }
 }
