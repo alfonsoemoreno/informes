@@ -699,6 +699,11 @@ select {
   gap: 22px;
 }
 
+.tenant-groups-page {
+  display: grid;
+  gap: 22px;
+}
+
 .tenant-page-header {
   display: flex;
   align-items: flex-start;
@@ -1015,6 +1020,190 @@ select {
 .tenant-users-modal .field input[readonly] {
   background: #f5f3f3;
   color: #75777f;
+}
+
+.tenant-groups-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.tenant-groups-hero-copy,
+.tenant-groups-hero-panel {
+  border-radius: 20px;
+  border: 1px solid rgba(197, 198, 207, 0.22);
+  overflow: hidden;
+}
+
+.tenant-groups-hero-copy {
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(167, 215, 253, 0.22) 0%, rgba(255, 255, 255, 0.94) 58%),
+    #ffffff;
+  display: grid;
+  gap: 14px;
+}
+
+.tenant-groups-badge {
+  justify-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(49, 99, 132, 0.1);
+  color: #316384;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tenant-groups-hero-copy h2 {
+  color: #182545;
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1.02;
+}
+
+.tenant-groups-hero-copy p {
+  max-width: 680px;
+  color: #5f616b;
+  line-height: 1.7;
+}
+
+.tenant-groups-secondary-cta {
+  min-height: 46px;
+  justify-self: flex-start;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #182545;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tenant-groups-hero-panel {
+  padding: 24px;
+  background: #f5f3f3;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+}
+
+.tenant-groups-hero-panel-label {
+  color: #75777f;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.tenant-groups-hero-panel strong {
+  color: #182545;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.tenant-groups-hero-panel span {
+  color: #5f616b;
+  line-height: 1.6;
+}
+
+.tenant-groups-empty {
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px dashed rgba(197, 198, 207, 0.5);
+  background: #ffffff;
+  color: #5f616b;
+}
+
+.tenant-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.tenant-group-card {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(197, 198, 207, 0.18);
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(24, 37, 69, 0.04);
+  display: grid;
+  gap: 22px;
+}
+
+.tenant-group-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tenant-group-card-icon-shell {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(24, 37, 69, 0.06);
+  color: #182545;
+}
+
+.tenant-group-card-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.tenant-group-card-number {
+  color: rgba(24, 37, 69, 0.14);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+}
+
+.tenant-group-card-body {
+  display: grid;
+  gap: 10px;
+}
+
+.tenant-group-card-body h3 {
+  color: #1b1c1c;
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.tenant-group-card-body p {
+  color: #5f616b;
+  line-height: 1.6;
+}
+
+.tenant-group-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.tenant-group-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #efeded;
+  color: #45464e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .tenant-create-user-modal {
@@ -2414,7 +2603,8 @@ select {
   .tenant-topbar-actions,
   .tenant-page-header,
   .tenant-page-header-actions,
-  .tenant-filter-bar {
+  .tenant-filter-bar,
+  .tenant-groups-hero {
     width: 100%;
     flex-wrap: wrap;
   }
@@ -2431,6 +2621,10 @@ select {
   .tenant-page-header-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .tenant-groups-hero {
+    grid-template-columns: 1fr;
   }
 
   .tenant-primary-cta {
