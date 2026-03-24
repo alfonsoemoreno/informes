@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Usuarios - Congregación Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#a7d7fd",
+              "on-primary-fixed": "#0c1a3a",
+              "on-error": "#ffffff",
+              "error": "#ba1a1a",
+              "on-surface-variant": "#45464e",
+              "surface": "#fbf9f9",
+              "secondary": "#316384",
+              "on-tertiary-fixed": "#1b1c1c",
+              "on-secondary-container": "#2c5e7f",
+              "surface-variant": "#e3e2e2",
+              "surface-container-high": "#e9e8e7",
+              "inverse-surface": "#303031",
+              "secondary-fixed-dim": "#9cccf1",
+              "on-secondary-fixed-variant": "#134b6b",
+              "tertiary-fixed": "#e4e2e2",
+              "primary-container": "#2e3b5c",
+              "primary-fixed-dim": "#b9c6ee",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "on-secondary": "#ffffff",
+              "inverse-on-surface": "#f2f0f0",
+              "inverse-primary": "#b9c6ee",
+              "primary-fixed": "#dae2ff",
+              "on-tertiary-container": "#a7a6a6",
+              "surface-dim": "#dbdad9",
+              "surface-container-highest": "#e3e2e2",
+              "tertiary": "#262627",
+              "on-primary-container": "#99a6cc",
+              "on-secondary-fixed": "#001e2f",
+              "error-container": "#ffdad6",
+              "background": "#fbf9f9",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed": "#c9e6ff",
+              "outline-variant": "#c5c6cf",
+              "on-background": "#1b1c1c",
+              "on-surface": "#1b1c1c",
+              "surface-container-low": "#f5f3f3",
+              "outline": "#75777f",
+              "surface-tint": "#515e81",
+              "on-primary-fixed-variant": "#394668",
+              "primary": "#182545",
+              "surface-bright": "#fbf9f9",
+              "tertiary-container": "#3c3c3c",
+              "surface-container": "#efeded",
+              "on-tertiary-fixed-variant": "#474747"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .signature-gradient {
+            background: linear-gradient(135deg, #182545 0%, #2e3b5c 100%);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fbf9f9;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 h-16 bg-[#fbf9f9] dark:bg-slate-950 backdrop-blur-md bg-opacity-70 shadow-sm flex justify-between items-center px-8">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#182545] dark:text-blue-200">Congregación Admin</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-[#45464e] dark:text-slate-400 hover:text-[#182545] transition-colors font-['Inter'] antialiased tracking-tight text-sm font-medium" href="#">Inicio</a>
+<a class="text-[#45464e] dark:text-slate-400 hover:text-[#182545] transition-colors font-['Inter'] antialiased tracking-tight text-sm font-medium" href="#">Reportes</a>
+<a class="text-[#182545] dark:text-blue-400 border-b-2 border-[#182545] pb-1 font-semibold font-['Inter'] antialiased tracking-tight text-sm" href="#">Congregación</a>
+<a class="text-[#45464e] dark:text-slate-400 hover:text-[#182545] transition-colors font-['Inter'] antialiased tracking-tight text-sm font-medium" href="#">Configuración</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#f5f3f3] transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-[#f5f3f3] transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+</button>
+</div>
+</nav>
+<div class="flex pt-16 min-h-screen">
+<!-- Side Navigation Bar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-[#f5f3f3] dark:bg-slate-900 flex flex-col p-4 gap-2">
+<div class="mb-6 px-4 py-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">corporate_fare</span>
+</div>
+<div>
+<p class="text-sm font-bold text-[#182545]">Gestión Central</p>
+<p class="text-xs text-on-surface-variant">Tenant Congregación</p>
+</div>
+</div>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 text-[#45464e] dark:text-slate-400 hover:bg-[#ffffff]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all cursor-pointer select-none" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-sm leading-6">Resumen</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#ffffff] dark:bg-slate-800 text-[#182545] dark:text-blue-300 font-bold rounded-lg shadow-sm cursor-pointer select-none" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Inter'] text-sm leading-6">Usuarios</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#45464e] dark:text-slate-400 hover:bg-[#ffffff]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all cursor-pointer select-none" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-['Inter'] text-sm leading-6">Grupos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#45464e] dark:text-slate-400 hover:bg-[#ffffff]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all cursor-pointer select-none" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-sm leading-6">Publicadores</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#45464e] dark:text-slate-400 hover:bg-[#ffffff]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all cursor-pointer select-none" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-['Inter'] text-sm leading-6">Informes mensuales</span>
+</a>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 w-full p-8 bg-surface">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div class="space-y-1">
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">Usuarios del Sistema</h1>
+<p class="text-on-surface-variant max-w-2xl leading-relaxed">Administre los accesos y roles de los miembros autorizados para gestionar la información de la congregación.</p>
+</div>
+<button class="signature-gradient text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg shadow-primary/10 active:scale-95 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+                    Registrar Nuevo Usuario
+                </button>
+</div>
+<!-- Dashboard Stats (Editorial Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container-low p-6 rounded-xl">
+<p class="text-xs font-bold uppercase tracking-wider text-secondary mb-2">Total Usuarios</p>
+<p class="text-4xl font-extrabold text-primary">42</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<p class="text-xs font-bold uppercase tracking-wider text-secondary mb-2">Sesiones Activas</p>
+<p class="text-4xl font-extrabold text-primary">18</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<p class="text-xs font-bold uppercase tracking-wider text-secondary mb-2">Roles Asignados</p>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-1 bg-surface-container-highest rounded text-xs font-medium">12 Ancianos</span>
+<span class="px-2 py-1 bg-surface-container-highest rounded text-xs font-medium">8 Siervos</span>
+</div>
+</div>
+</div>
+<!-- Table Container (No borders, Tonal depth) -->
+<div class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm">
+<div class="px-6 py-4 bg-surface-container flex items-center justify-between border-b border-outline-variant/15">
+<h2 class="font-bold text-primary">Accesos del tenant</h2>
+<div class="flex gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface rounded-lg border-none text-sm focus:ring-2 focus:ring-primary/20 w-64" placeholder="Buscar usuario..." type="text"/>
+</div>
+<button class="p-2 hover:bg-surface rounded-lg transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant uppercase text-[10px] font-bold tracking-widest border-b border-outline-variant/10">
+<th class="px-8 py-4">Nombre</th>
+<th class="px-6 py-4">Correo</th>
+<th class="px-6 py-4">Rol</th>
+<th class="px-6 py-4">Grupo</th>
+<th class="px-6 py-4">Estado</th>
+<th class="px-8 py-4 text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-highest/30 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center font-bold text-on-secondary-container">CA</div>
+<span class="font-semibold text-on-surface">Carlos Alvarado</span>
+</div>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-medium">c.alvarado@congregacion.org</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-xs font-bold rounded-full">Anciano</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-medium">Grupo 01 - Norte</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Activo
+                                </div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:bg-surface rounded-lg text-outline transition-colors group-hover:text-primary">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-error/10 rounded-lg text-outline transition-colors group-hover:text-error">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/30 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline">MP</div>
+<span class="font-semibold text-on-surface">Mateo Pineda</span>
+</div>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-medium">m.pineda@congregacion.org</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-xs font-bold rounded-full">Siervo Ministerial</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-medium">Grupo 04 - Centro</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Activo
+                                </div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:bg-surface rounded-lg text-outline transition-colors group-hover:text-primary">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-error/10 rounded-lg text-outline transition-colors group-hover:text-error">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/30 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline">ES</div>
+<span class="font-semibold text-on-surface">Elena Suarez</span>
+</div>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-medium">e.suarez@congregacion.org</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant text-xs font-bold rounded-full">Publicador</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-medium">Grupo 02 - Sur</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-1.5 text-on-surface-variant/40 font-bold text-xs uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                                    Inactivo
+                                </div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="p-2 hover:bg-surface rounded-lg text-outline transition-colors group-hover:text-primary">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-error/10 rounded-lg text-outline transition-colors group-hover:text-error">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-8 py-6 flex items-center justify-between text-sm text-on-surface-variant">
+<p>Mostrando 3 de 42 usuarios</p>
+<div class="flex gap-2">
+<button class="px-4 py-2 hover:bg-surface-container rounded-lg font-medium">Anterior</button>
+<button class="px-4 py-2 signature-gradient text-white rounded-lg font-medium">1</button>
+<button class="px-4 py-2 hover:bg-surface-container rounded-lg font-medium">2</button>
+<button class="px-4 py-2 hover:bg-surface-container rounded-lg font-medium">3</button>
+<button class="px-4 py-2 hover:bg-surface-container rounded-lg font-medium">Siguiente</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#182545]/40 backdrop-blur-sm">
+<!-- Registration Modal -->
+<div class="bg-surface rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+<!-- Modal Header -->
+<div class="px-8 py-6 bg-surface-container-low border-b border-outline-variant/10 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary-fixed rounded-lg">
+<span class="material-symbols-outlined text-primary">person_add</span>
+</div>
+<div>
+<h3 class="text-xl font-bold text-primary">Registrar Nuevo Usuario</h3>
+<p class="text-xs text-on-surface-variant">Complete los datos para habilitar el acceso.</p>
+</div>
+</div>
+<button class="p-2 hover:bg-surface-container-highest rounded-full transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<form class="p-8 space-y-6">
+<div class="grid grid-cols-1 gap-5">
+<!-- Name Input -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Nombre Completo</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-highest rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none" placeholder="Ej. Juan Pérez" type="text"/>
+</div>
+</div>
+<!-- Email Input -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Correo Electrónico</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">mail</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-highest rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none" placeholder="usuario@ejemplo.com" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Clave Inicial</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full pl-10 pr-12 py-3 bg-surface-container-highest rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Two columns for Selects -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Rol</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">shield_person</span>
+<select class="w-full pl-10 pr-4 py-3 bg-surface-container-highest rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none appearance-none cursor-pointer">
+<option disabled="" selected="" value="">Seleccionar...</option>
+<option value="anciano">Anciano</option>
+<option value="siervo">Siervo Ministerial</option>
+<option value="publicador">Publicador</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">Grupo asociado</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">corporate_fare</span>
+<select class="w-full pl-10 pr-4 py-3 bg-surface-container-highest rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none appearance-none cursor-pointer">
+<option disabled="" selected="" value="">Seleccionar...</option>
+<option value="1">Grupo 01 - Norte</option>
+<option value="2">Grupo 02 - Sur</option>
+<option value="3">Grupo 03 - Este</option>
+<option value="4">Grupo 04 - Centro</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer Actions -->
+<div class="pt-6 flex gap-3">
+<button class="flex-1 py-3 px-6 rounded-xl border border-outline-variant text-primary font-bold hover:bg-surface-container transition-colors" type="button">
+                        Cancelar
+                    </button>
+<button class="flex-[2] py-3 px-6 rounded-xl signature-gradient text-white font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all" type="submit">
+                        Crear Acceso de Usuario
+                    </button>
+</div>
+</form>
+</div>
+</div>
+</body></html>

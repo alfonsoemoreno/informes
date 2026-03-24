@@ -160,3 +160,239 @@ export function DeleteIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function DashboardIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4.75 5.75C4.75 5.2 5.2 4.75 5.75 4.75H10.25C10.8 4.75 11.25 5.2 11.25 5.75V10.25C11.25 10.8 10.8 11.25 10.25 11.25H5.75C5.2 11.25 4.75 10.8 4.75 10.25V5.75ZM12.75 5.75C12.75 5.2 13.2 4.75 13.75 4.75H18.25C18.8 4.75 19.25 5.2 19.25 5.75V8.25C19.25 8.8 18.8 9.25 18.25 9.25H13.75C13.2 9.25 12.75 8.8 12.75 8.25V5.75ZM4.75 13.75C4.75 13.2 5.2 12.75 5.75 12.75H10.25C10.8 12.75 11.25 13.2 11.25 13.75V18.25C11.25 18.8 10.8 19.25 10.25 19.25H5.75C5.2 19.25 4.75 18.8 4.75 18.25V13.75ZM12.75 11.75C12.75 11.2 13.2 10.75 13.75 10.75H18.25C18.8 10.75 19.25 11.2 19.25 11.75V18.25C19.25 18.8 18.8 19.25 18.25 19.25H13.75C13.2 19.25 12.75 18.8 12.75 18.25V11.75Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+export function GroupUsersIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M15.5 18.5C15.5 16.84 13.93 15.5 12 15.5C10.07 15.5 8.5 16.84 8.5 18.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12 12.25C13.5188 12.25 14.75 11.0188 14.75 9.5C14.75 7.98122 13.5188 6.75 12 6.75C10.4812 6.75 9.25 7.98122 9.25 9.5C9.25 11.0188 10.4812 12.25 12 12.25Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M5.5 17.5C5.5 16.44 4.61 15.58 3.5 15.58M18.5 17.5C18.5 16.44 19.39 15.58 20.5 15.58M4.5 12.25C5.47 12.25 6.25 11.47 6.25 10.5C6.25 9.53 5.47 8.75 4.5 8.75M19.5 12.25C18.53 12.25 17.75 11.47 17.75 10.5C17.75 9.53 18.53 8.75 19.5 8.75"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function HubIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 7.5V16.5M7.5 12H16.5M6 7.5H8M16 7.5H18M6 16.5H8M16 16.5H18"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="5" cy="7.5" r="1.25" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="19" cy="7.5" r="1.25" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="5" cy="16.5" r="1.25" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="19" cy="16.5" r="1.25" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+export function BookIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M6.5 5.25H16.25C17.91 5.25 19.25 6.59 19.25 8.25V17.75C19.25 18.3 18.8 18.75 18.25 18.75H8.25C7.15 18.75 6.25 17.85 6.25 16.75V6.5C6.25 5.81 5.69 5.25 5 5.25C4.31 5.25 3.75 5.81 3.75 6.5V16.75C3.75 19.23 5.77 21.25 8.25 21.25H18.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M9.5 9H16M9.5 12H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ReportsIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M6 18.5V10.5M12 18.5V6.5M18 18.5V13.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M4.75 19.25H19.25M6 8.5L12 4.75L18 11.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M16 16L20 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function FilterIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4.75 6.75H19.25M7.75 12H16.25M10.75 17.25H13.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function EditIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4.75 19.25L8.31 18.44C8.76 18.34 9.18 18.11 9.51 17.78L18.28 9.01C19.24 8.05 19.24 6.49 18.28 5.53C17.32 4.57 15.76 4.57 14.8 5.53L6.03 14.3C5.7 14.63 5.47 15.05 5.37 15.5L4.75 19.25Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M13.5 6.75L17.25 10.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function LogoutIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M10 5.75H7.5C6.81 5.75 6.25 6.31 6.25 7V17C6.25 17.69 6.81 18.25 7.5 18.25H10M14 8.5L17.5 12M17.5 12L14 15.5M17.5 12H10.75"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PersonIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 12.25C13.5188 12.25 14.75 11.0188 14.75 9.5C14.75 7.98122 13.5188 6.75 12 6.75C10.4812 6.75 9.25 7.98122 9.25 9.5C9.25 11.0188 10.4812 12.25 12 12.25Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M6.75 18C7.84 16.14 9.74 14.88 12 14.88C14.26 14.88 16.16 16.14 17.25 18"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function MailIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M5.75 7.25H18.25C18.8 7.25 19.25 7.7 19.25 8.25V15.75C19.25 16.3 18.8 16.75 18.25 16.75H5.75C5.2 16.75 4.75 16.3 4.75 15.75V8.25C4.75 7.7 5.2 7.25 5.75 7.25Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M5.5 8L12 12.75L18.5 8"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function LockIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M8.25 10V8.5C8.25 6.43 9.93 4.75 12 4.75C14.07 4.75 15.75 6.43 15.75 8.5V10"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <rect x="6.25" y="10" width="11.5" height="9.25" rx="1.75" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12 13.5V15.75" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ShieldIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 4.75L17.75 7V11.5C17.75 15.21 15.44 18.53 12 19.75C8.56 18.53 6.25 15.21 6.25 11.5V7L12 4.75Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="M12 9V14.5M9.75 11.75H14.25" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function EyeIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M2.75 12C4.42 8.94 7.92 6.75 12 6.75C16.08 6.75 19.58 8.94 21.25 12C19.58 15.06 16.08 17.25 12 17.25C7.92 17.25 4.42 15.06 2.75 12Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="2.25" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 7L17 17M17 7L7 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
