@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import { and, desc, eq } from "drizzle-orm";
 import { createAuthClient } from "@neondatabase/auth";
+import { BetterAuthVanillaAdapter } from "@neondatabase/auth/vanilla";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../src/lib/db/schema";
@@ -24,11 +25,13 @@ if (!NEON_AUTH_BASE_URL) {
 const sql = neon(DATABASE_URL);
 const db = drizzle(sql, { schema });
 const auth = createAuthClient(NEON_AUTH_BASE_URL, {
-  fetchOptions: {
-    headers: {
-      origin: SEED_APP_ORIGIN,
+  adapter: BetterAuthVanillaAdapter({
+    fetchOptions: {
+      headers: {
+        origin: SEED_APP_ORIGIN,
+      },
     },
-  },
+  }),
 });
 
 const seedConfig = {
@@ -124,8 +127,13 @@ async function ensureAuthUser(user: SeedUser) {
   );
 }
 
-async function ensureAppUser(user: SeedUser, isSuperadmin = false) {
+async function ensureAppUser(
+  user: SeedUser,
+  options?: { isSuperadmin?: boolean; userType?: "superadmin" | "secretary" | "tenant_user" },
+) {
   const authUser = await ensureAuthUser(user);
+  const isSuperadmin = options?.isSuperadmin ?? false;
+  const userType = options?.userType ?? "tenant_user";
 
   const [appUser] = await db
     .insert(schema.appUsers)
@@ -133,6 +141,7 @@ async function ensureAppUser(user: SeedUser, isSuperadmin = false) {
       authUserId: authUser.authUserId,
       email: authUser.email,
       displayName: authUser.name,
+      userType,
       isSuperadmin,
     })
     .onConflictDoUpdate({
@@ -140,6 +149,7 @@ async function ensureAppUser(user: SeedUser, isSuperadmin = false) {
       set: {
         authUserId: authUser.authUserId,
         displayName: authUser.name,
+        userType,
         isSuperadmin,
         updatedAt: new Date(),
       },
@@ -332,7 +342,10 @@ async function ensureMonthlyReport(input: {
 async function main() {
   console.log("Seeding initial data...");
 
-  const superadmin = await ensureAppUser(seedConfig.superadmin, true);
+  const superadmin = await ensureAppUser(seedConfig.superadmin, {
+    isSuperadmin: true,
+    userType: "superadmin",
+  });
   console.log(`Superadmin listo: ${superadmin.email}`);
 
   const tenant = await ensureTenant();
@@ -341,10 +354,18 @@ async function main() {
   const group1 = await ensureGroup(tenant.id, "Grupo 1", 1, "G1");
   const group2 = await ensureGroup(tenant.id, "Grupo 2", 2, "G2");
 
-  const secretary = await ensureAppUser(seedConfig.users.secretary);
-  const elder = await ensureAppUser(seedConfig.users.elder);
-  const overseer = await ensureAppUser(seedConfig.users.overseer);
-  const assistant = await ensureAppUser(seedConfig.users.assistant);
+  const secretary = await ensureAppUser(seedConfig.users.secretary, {
+    userType: "secretary",
+  });
+  const elder = await ensureAppUser(seedConfig.users.elder, {
+    userType: "tenant_user",
+  });
+  const overseer = await ensureAppUser(seedConfig.users.overseer, {
+    userType: "tenant_user",
+  });
+  const assistant = await ensureAppUser(seedConfig.users.assistant, {
+    userType: "tenant_user",
+  });
 
   const secretaryMembership = await ensureTenantUser({
     tenantId: tenant.id,

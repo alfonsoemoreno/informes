@@ -120,6 +120,7 @@ export async function listTenantGroups(tenantId: string) {
       id: preachingGroups.id,
       name: preachingGroups.name,
       code: preachingGroups.code,
+      sortOrder: preachingGroups.sortOrder,
     })
     .from(preachingGroups)
     .where(and(eq(preachingGroups.tenantId, tenantId), eq(preachingGroups.isActive, true)))

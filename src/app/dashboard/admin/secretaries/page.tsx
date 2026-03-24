@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { getCurrentAppContext } from "@/lib/app-context";
-import { listAllTenants } from "@/lib/admin/queries";
-import { TenantManagement } from "@/app/dashboard/admin/tenants/tenant-management";
+import { listSecretaryUsers } from "@/lib/admin/queries";
+import { SecretaryManagement } from "@/app/dashboard/admin/secretaries/secretary-management";
 
-export default async function AdminTenantsPage({
+export default async function AdminSecretariesPage({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -20,14 +20,10 @@ export default async function AdminTenantsPage({
   }
 
   if (!context.appUser?.isSuperadmin) {
-    return (
-      <section className="panel" style={{ padding: "28px" }}>
-        <div className="empty-state">Esta seccion solo esta disponible para superadmins.</div>
-      </section>
-    );
+    redirect("/dashboard");
   }
 
-  const tenantList = await listAllTenants();
+  const secretaries = await listSecretaryUsers();
 
   return (
     <div className="section-stack">
@@ -37,7 +33,7 @@ export default async function AdminTenantsPage({
         </section>
       ) : null}
 
-      <TenantManagement tenants={tenantList} />
+      <SecretaryManagement secretaries={secretaries} />
     </div>
   );
 }

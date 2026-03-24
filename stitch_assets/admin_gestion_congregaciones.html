@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Congregaciones | Grace &amp; Light</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-background": "#30332e",
+              "error": "#9f403d",
+              "tertiary-container": "#ffd5af",
+              "surface-tint": "#605d62",
+              "primary-fixed": "#e5e1e7",
+              "on-surface": "#30332e",
+              "secondary-fixed": "#ffdbcf",
+              "on-tertiary-container": "#65492c",
+              "surface-bright": "#fbf9f5",
+              "on-secondary-container": "#7c422b",
+              "on-tertiary": "#fff7f3",
+              "inverse-surface": "#0e0e0d",
+              "on-error": "#fff7f6",
+              "tertiary-fixed": "#ffd5af",
+              "on-primary": "#fbf6fc",
+              "surface-container-low": "#f5f4ef",
+              "on-tertiary-fixed-variant": "#6f5234",
+              "secondary-container": "#ffdbcf",
+              "background": "#fbf9f5",
+              "on-surface-variant": "#5d605a",
+              "outline": "#797c75",
+              "error-container": "#fe8983",
+              "surface": "#fbf9f5",
+              "surface-container-high": "#e8e9e2",
+              "primary-fixed-dim": "#d7d3d8",
+              "inverse-primary": "#faf5fb",
+              "tertiary-fixed-dim": "#f0c8a2",
+              "outline-variant": "#b1b3ab",
+              "primary-dim": "#535256",
+              "on-secondary-fixed": "#66301a",
+              "secondary-fixed-dim": "#ffc8b5",
+              "on-primary-container": "#535155",
+              "tertiary": "#77593b",
+              "surface-variant": "#e2e3db",
+              "on-error-container": "#752121",
+              "on-primary-fixed-variant": "#5d5b5f",
+              "surface-container": "#eeeee8",
+              "primary-container": "#e5e1e7",
+              "secondary-dim": "#7e432c",
+              "surface-container-highest": "#e2e3db",
+              "surface-dim": "#d9dbd2",
+              "on-secondary-fixed-variant": "#884b33",
+              "on-primary-fixed": "#403f43",
+              "error-dim": "#4e0309",
+              "secondary": "#8c4f37",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed": "#50361b",
+              "on-secondary": "#fff7f5",
+              "primary": "#605d62",
+              "inverse-on-surface": "#9e9d99",
+              "tertiary-dim": "#6a4d30"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3, .serif-font { font-family: 'Noto Serif', serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="bg-[#fbf9f5]/80 dark:bg-stone-900/80 backdrop-blur-md sticky top-0 z-50 no-border tonal-shift-bg flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-serif italic text-[#8d4f37] dark:text-[#a6715d]">Grace &amp; Light</span>
+<div class="hidden md:flex space-x-6">
+<a class="text-[#8d4f37] dark:text-[#a6715d] font-semibold border-b-2 border-[#8d4f37] pb-1" href="#">Congregaciones</a>
+<a class="text-[#605d62] dark:text-stone-400 font-medium hover:text-[#8d4f37] transition-colors" href="#">Secretarios</a>
+<a class="text-[#605d62] dark:text-stone-400 font-medium hover:text-[#8d4f37] transition-colors" href="#">Asignaciones</a>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button class="material-symbols-outlined text-[#605d62] hover:text-[#8d4f37] transition-all duration-300">notifications</button>
+<button class="material-symbols-outlined text-[#605d62] hover:text-[#8d4f37] transition-all duration-300">settings</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="Super Admin Profile" data-alt="Close up portrait of a professional man with a kind expression and silver hair, soft studio lighting, professional corporate style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqDYbAE3a9PI2bJA2HVJS9cgzkrq7ni-C0sI7h2yp0iCuFb5og5SLeObzFAtfTfJcfrlf-X1reRKDkPd175dpdMFVMDJeNZj8OCfQ7TGiUyIU2sx-krnvKjEud9ADhR_G_0_XJURxjAH4H3DOE9nBxtqg3NQ_AM2aNXPn7IgVBR6aXryMvmAK0MfIMoidf4JVre2GomrawwdVi4gNupdoiMoGXSF2yUh2ko2iINp3uYAVqUgZp9hjE5eAO23j1K4vrRshest2IHQs"/>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-8 py-12 flex flex-col gap-12">
+<!-- Editorial Header Section -->
+<header class="flex flex-col gap-4">
+<div class="flex items-center gap-2 text-secondary font-label text-xs uppercase tracking-widest font-bold">
+<span class="w-8 h-[1px] bg-secondary"></span>
+<span>Módulo Administrativo</span>
+</div>
+<h1 class="text-5xl md:text-6xl font-headline text-on-background tracking-tight leading-tight max-w-2xl">Gestión de Congregaciones</h1>
+<!-- Superadmin Context Banner -->
+<div class="mt-6 flex items-center p-4 bg-surface-container-low rounded-xl gap-4 max-w-3xl">
+<div class="bg-secondary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Contexto de Super Administrador</span>
+<span class="text-xs text-on-surface-variant">Usted tiene permisos globales para crear, editar y suspender cualquier congregación dentro del sistema central.</span>
+</div>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Left Column: Creation Card -->
+<aside class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/20">
+<h2 class="text-2xl font-headline mb-6">Crear congregación</h2>
+<form class="flex flex-col gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-xs font-bold uppercase tracking-wider text-secondary">Nombre de la Congregación</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none text-on-background" placeholder="Ej: Central de Madrid" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-xs font-bold uppercase tracking-wider text-secondary">Slug identificador</label>
+<div class="relative">
+<span class="absolute left-4 top-3.5 text-on-surface-variant text-sm">/</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl pl-8 pr-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none text-on-background" placeholder="central-madrid" type="text"/>
+</div>
+<p class="text-[10px] text-on-surface-variant italic">El slug se utiliza para la URL personalizada de la congregación.</p>
+</div>
+<button class="mt-4 bg-primary text-on-primary py-4 px-6 rounded-xl font-bold hover:bg-primary-dim transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">add</span>
+                            Guardar Nueva Congregación
+                        </button>
+</form>
+</div>
+<div class="relative h-64 overflow-hidden rounded-xl">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="Interior of a modern minimalist church building with wooden beams and soft natural sunlight filtering through high windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZivA4FkthNCf42GndrdikOU8rVXa2MmgR83UpUhSfpjneeHfzKifNSYw7TexJpC3NY4c7ak3A4m8w76kVWjYW-bShBP8Ao52tFuBL32-jWo6N743qYB8Gp-y00c8x9uydMwJTkMSORZ6YTwLqM_ZlYKpO8gI6BXgJJC1wQk5EUEe99mVDB4gRyIcZcyTEepYnM0Epb203rv92scquK3m_E3p_tI6S4oOs0J9fbb_gpK35fTiMoqR_KsYFc6nBlkYWswsP632Xwq8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-background/80 to-transparent flex items-end p-6">
+<p class="text-white text-sm italic font-serif">"Servid al Señor con alegría; venid ante su presencia con regocijo."</p>
+</div>
+</div>
+</aside>
+<!-- Right Column: List of Congregations -->
+<section class="lg:col-span-8 flex flex-col gap-6">
+<div class="flex justify-between items-end pb-4">
+<h2 class="text-3xl font-headline">Congregaciones registradas</h2>
+<span class="text-sm text-on-surface-variant font-medium">12 congregaciones activas</span>
+</div>
+<div class="flex flex-col gap-4">
+<!-- List Item 1 -->
+<div class="group bg-surface-container-lowest p-6 rounded-xl hover:shadow-md transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/20">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-surface-container-high rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-headline group-hover:text-secondary transition-colors">Sede Central - Ciudad de México</h3>
+<div class="flex items-center gap-3 mt-1">
+<span class="flex items-center gap-1 text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">person</span>
+                                        Secretario: Antonio Valdivia
+                                    </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="text-xs text-on-surface-variant">Suscripción Premium</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-green-100 text-green-800 text-[10px] font-bold uppercase tracking-wider rounded-full">Activa</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="group bg-surface-container-lowest p-6 rounded-xl hover:shadow-md transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/20">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-surface-container-high rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">temple_hindu</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-headline group-hover:text-secondary transition-colors">Congregación El Olivar</h3>
+<div class="flex items-center gap-3 mt-1">
+<span class="flex items-center gap-1 text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">person</span>
+                                        Secretario: María Elena Rojas
+                                    </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="text-xs text-on-surface-variant">Suscripción Estándar</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-green-100 text-green-800 text-[10px] font-bold uppercase tracking-wider rounded-full">Activa</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="group bg-surface-container-lowest p-6 rounded-xl hover:shadow-md transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/20">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-surface-container-high rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">home_work</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-headline group-hover:text-secondary transition-colors">Misión Urbana del Norte</h3>
+<div class="flex items-center gap-3 mt-1">
+<span class="flex items-center gap-1 text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">person</span>
+                                        Secretario: Pendiente asignar
+                                    </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="text-xs text-on-surface-variant">Demo Limitada</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-full">Inactiva</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</div>
+</div>
+<!-- List Item 4 -->
+<div class="group bg-surface-container-lowest p-6 rounded-xl hover:shadow-md transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/20">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-surface-container-high rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">account_balance</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-headline group-hover:text-secondary transition-colors">San Juan de la Cruz</h3>
+<div class="flex items-center gap-3 mt-1">
+<span class="flex items-center gap-1 text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">person</span>
+                                        Secretario: Roberto Méndez
+                                    </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="text-xs text-on-surface-variant">Suscripción Premium</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-green-100 text-green-800 text-[10px] font-bold uppercase tracking-wider rounded-full">Activa</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</div>
+</div>
+</div>
+<div class="flex justify-center mt-4">
+<button class="text-primary font-bold text-sm hover:underline py-2 px-4 transition-all">Ver todas las congregaciones (12)</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer Space -->
+<footer class="max-w-7xl mx-auto px-8 py-12 border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+<span class="text-2xl font-serif italic text-[#8d4f37]/40">Grace &amp; Light</span>
+<div class="flex gap-8 text-xs font-label uppercase tracking-widest text-on-surface-variant">
+<a class="hover:text-secondary transition-colors" href="#">Política de Privacidad</a>
+<a class="hover:text-secondary transition-colors" href="#">Soporte Admin</a>
+<a class="hover:text-secondary transition-colors" href="#">Documentación API</a>
+</div>
+<p class="text-[10px] text-on-surface-variant">© 2024 Grace &amp; Light Central Administration System. Todos los derechos reservados.</p>
+</div>
+</footer>
+</body></html>

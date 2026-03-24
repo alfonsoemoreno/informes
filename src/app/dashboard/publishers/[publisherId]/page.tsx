@@ -45,6 +45,10 @@ export default async function PublisherDetailsPage({
     redirect("/auth/sign-in");
   }
 
+  if (context.appUser?.isSuperadmin) {
+    redirect("/dashboard/admin/tenants");
+  }
+
   const membership = context.activeMembership;
 
   if (!membership) {

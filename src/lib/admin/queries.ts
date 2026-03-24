@@ -27,7 +27,7 @@ export async function listTenantUsers(tenantId: string) {
 export async function listAllTenants() {
   const db = getDb();
 
-  return db
+  const tenantList = await db
     .select({
       id: tenants.id,
       name: tenants.name,
@@ -38,6 +38,34 @@ export async function listAllTenants() {
     })
     .from(tenants)
     .orderBy(asc(tenants.name));
+
+  const enriched = await Promise.all(
+    tenantList.map(async (tenant) => {
+      const [secretary] = await db
+        .select({
+          tenantUserId: tenantUsers.id,
+          email: appUsers.email,
+          displayName: appUsers.displayName,
+          isActive: tenantUsers.isActive,
+        })
+        .from(tenantUsers)
+        .innerJoin(appUsers, eq(tenantUsers.appUserId, appUsers.id))
+        .where(
+          and(
+            eq(tenantUsers.tenantId, tenant.id),
+            eq(tenantUsers.role, "secretary"),
+          ),
+        )
+        .limit(1);
+
+      return {
+        ...tenant,
+        secretary: secretary ?? null,
+      };
+    }),
+  );
+
+  return enriched;
 }
 
 export async function tenantSlugExists(slug: string) {
@@ -90,4 +118,48 @@ export async function findTenantUserById(input: { tenantId: string; tenantUserId
     .limit(1);
 
   return membership ?? null;
+}
+
+export async function listSecretaryUsers() {
+  const db = getDb();
+
+  const users = await db
+    .select({
+      id: appUsers.id,
+      authUserId: appUsers.authUserId,
+      email: appUsers.email,
+      displayName: appUsers.displayName,
+      userType: appUsers.userType,
+      isSuperadmin: appUsers.isSuperadmin,
+      createdAt: appUsers.createdAt,
+    })
+    .from(appUsers)
+    .where(eq(appUsers.userType, "secretary"))
+    .orderBy(asc(appUsers.displayName), asc(appUsers.email));
+
+  const enriched = await Promise.all(
+    users.map(async (user) => {
+      const [membership] = await db
+        .select({
+          tenantUserId: tenantUsers.id,
+          tenantId: tenants.id,
+          tenantName: tenants.name,
+          tenantSlug: tenants.slug,
+          isActive: tenantUsers.isActive,
+        })
+        .from(tenantUsers)
+        .innerJoin(tenants, eq(tenantUsers.tenantId, tenants.id))
+        .where(
+          and(eq(tenantUsers.appUserId, user.id), eq(tenantUsers.role, "secretary")),
+        )
+        .limit(1);
+
+      return {
+        ...user,
+        secretaryMembership: membership ?? null,
+      };
+    }),
+  );
+
+  return enriched;
 }

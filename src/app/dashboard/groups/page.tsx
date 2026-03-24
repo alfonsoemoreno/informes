@@ -21,6 +21,10 @@ export default async function GroupsPage({
     redirect("/auth/sign-in");
   }
 
+  if (context.appUser?.isSuperadmin) {
+    redirect("/dashboard/admin/tenants");
+  }
+
   const membership = context.activeMembership;
 
   if (!membership) {
@@ -53,25 +57,15 @@ export default async function GroupsPage({
 
       {canManageGroups(membership.role) ? (
         <section className="panel" style={{ padding: "28px", display: "grid", gap: "18px" }}>
-          <h2>Crear grupo</h2>
+          <h2>Agregar grupo</h2>
+          <p className="hint">
+            Los grupos se crean en orden correlativo. Al agregar uno nuevo, el sistema genera
+            automaticamente el siguiente disponible.
+          </p>
           <form action={createGroupAction} className="form-grid">
-            <div className="form-grid two-columns">
-              <div className="field">
-                <label htmlFor="name">Nombre</label>
-                <input id="name" name="name" required />
-              </div>
-              <div className="field">
-                <label htmlFor="code">Codigo</label>
-                <input id="code" name="code" />
-              </div>
-            </div>
-            <div className="field" style={{ maxWidth: "180px" }}>
-              <label htmlFor="sortOrder">Orden</label>
-              <input id="sortOrder" name="sortOrder" type="number" defaultValue="0" min="0" />
-            </div>
             <div className="action-row">
               <button className="primary-button" type="submit">
-                Guardar grupo
+                Agregar siguiente grupo
               </button>
             </div>
           </form>
@@ -89,15 +83,15 @@ export default async function GroupsPage({
           <table className="data-table">
             <thead>
               <tr>
+                <th>Numero</th>
                 <th>Nombre</th>
-                <th>Codigo</th>
               </tr>
             </thead>
             <tbody>
               {groups.map((group) => (
                 <tr key={group.id}>
+                  <td>{group.sortOrder}</td>
                   <td>{group.name}</td>
-                  <td>{group.code ?? "Sin codigo"}</td>
                 </tr>
               ))}
             </tbody>

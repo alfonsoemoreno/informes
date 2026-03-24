@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, eq } from "drizzle-orm";
-import { z } from "zod";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { getCurrentAppContext } from "@/lib/app-context";
 import { getDb } from "@/lib/db";
 import { preachingGroups } from "@/lib/db/schema";
@@ -14,13 +13,7 @@ function redirectWithMessage(status: "error" | "success", message: string): neve
   redirect(`/dashboard/groups?${searchParams.toString()}`);
 }
 
-const createGroupSchema = z.object({
-  name: z.string().trim().min(2, "El nombre del grupo es obligatorio."),
-  code: z.string().trim().optional(),
-  sortOrder: z.coerce.number().int().min(0).max(999),
-});
-
-export async function createGroupAction(formData: FormData) {
+export async function createGroupAction() {
   const context = await getCurrentAppContext();
   const membership = context.activeMembership;
 
@@ -28,39 +21,42 @@ export async function createGroupAction(formData: FormData) {
     redirectWithMessage("error", "No tienes permisos para administrar grupos.");
   }
 
-  const parsed = createGroupSchema.safeParse({
-    name: formData.get("name"),
-    code: formData.get("code"),
-    sortOrder: formData.get("sortOrder"),
-  });
-
-  if (!parsed.success) {
-    redirectWithMessage("error", parsed.error.issues[0]?.message ?? "Datos invalidos.");
-  }
-
-  const data = parsed.data;
   const db = getDb();
-
-  const [existing] = await db
-    .select({ id: preachingGroups.id })
+  const [aggregate] = await db
+    .select({
+      maxSortOrder: sql<number>`coalesce(max(${preachingGroups.sortOrder}), 0)`,
+    })
     .from(preachingGroups)
-    .where(
-      and(
-        eq(preachingGroups.tenantId, membership.tenantId),
-        eq(preachingGroups.name, data.name),
-      ),
-    )
+    .where(eq(preachingGroups.tenantId, membership.tenantId))
     .limit(1);
 
-  if (existing) {
-    redirectWithMessage("error", "Ya existe un grupo con ese nombre en la congregacion.");
+  let nextGroupNumber = (aggregate?.maxSortOrder ?? 0) + 1;
+
+  while (true) {
+    const [existing] = await db
+      .select({ id: preachingGroups.id })
+      .from(preachingGroups)
+      .where(
+        and(
+          eq(preachingGroups.tenantId, membership.tenantId),
+          eq(preachingGroups.sortOrder, nextGroupNumber),
+        ),
+      )
+      .orderBy(desc(preachingGroups.createdAt))
+      .limit(1);
+
+    if (!existing) {
+      break;
+    }
+
+    nextGroupNumber += 1;
   }
 
   await db.insert(preachingGroups).values({
     tenantId: membership.tenantId,
-    name: data.name,
-    code: data.code || null,
-    sortOrder: data.sortOrder,
+    name: `Grupo ${nextGroupNumber}`,
+    code: String(nextGroupNumber),
+    sortOrder: nextGroupNumber,
   });
 
   revalidatePath("/dashboard");

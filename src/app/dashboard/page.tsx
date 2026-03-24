@@ -16,6 +16,10 @@ export default async function DashboardPage() {
     redirect("/auth/sign-in");
   }
 
+  if (context.appUser?.isSuperadmin) {
+    redirect("/dashboard/admin/tenants");
+  }
+
   const membership = context.activeMembership;
 
   if (!membership) {

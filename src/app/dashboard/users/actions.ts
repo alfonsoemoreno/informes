@@ -83,6 +83,7 @@ export async function createTenantUserAction(formData: FormData) {
         authUserId: result.data.user.id,
         email: result.data.user.email,
         displayName: result.data.user.name,
+        userType: "tenant_user",
       })
       .returning();
 

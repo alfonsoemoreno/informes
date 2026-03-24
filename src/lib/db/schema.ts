@@ -15,6 +15,11 @@ import { publisherStatuses, tenantRoles } from "@/lib/domain/reporting";
 
 export const tenantUserRoleEnum = pgEnum("tenant_user_role", tenantRoles);
 export const publisherStatusEnum = pgEnum("publisher_status", publisherStatuses);
+export const appUserTypeEnum = pgEnum("app_user_type", [
+  "superadmin",
+  "secretary",
+  "tenant_user",
+]);
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -30,6 +35,7 @@ export const appUsers = pgTable(
     authUserId: text("auth_user_id").notNull(),
     email: text("email").notNull(),
     displayName: text("display_name").notNull(),
+    userType: appUserTypeEnum("user_type").default("tenant_user").notNull(),
     isSuperadmin: boolean("is_superadmin").default(false).notNull(),
     ...timestamps,
   },

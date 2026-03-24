@@ -31,6 +31,7 @@ export const getCurrentAppContext = cache(async () => {
         authUserId: authSession.user.id,
         email: authSession.user.email,
         displayName: authSession.user.name ?? authSession.user.email,
+        userType: "tenant_user",
       })
       .returning();
   }
