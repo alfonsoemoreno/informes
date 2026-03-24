@@ -9,7 +9,7 @@ import { getAuthServer } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
 import { appUsers, tenantUsers } from "@/lib/db/schema";
 import { canManageTenantUsers } from "@/lib/domain/permissions";
-import { findAppUserByEmail, findTenantUser } from "@/lib/admin/queries";
+import { findAppUserByEmail, findTenantUser, findTenantUserById } from "@/lib/admin/queries";
 
 function redirectWithMessage(status: "error" | "success", message: string): never {
   const searchParams = new URLSearchParams({ status, message });
@@ -117,4 +117,120 @@ export async function createTenantUserAction(formData: FormData) {
   revalidatePath("/dashboard/users");
 
   redirectWithMessage("success", "Usuario del tenant guardado correctamente.");
+}
+
+const updateTenantUserSchema = z
+  .object({
+    tenantUserId: z.string().uuid(),
+    role: z.enum(["secretary", "elder", "group_overseer", "group_assistant"]),
+    groupId: z.string().uuid().optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      (data.role === "group_overseer" || data.role === "group_assistant") &&
+      (!data.groupId || data.groupId.length === 0)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["groupId"],
+        message: "Superintendentes y auxiliares deben estar asociados a un grupo.",
+      });
+    }
+  });
+
+const toggleTenantUserSchema = z.object({
+  tenantUserId: z.string().uuid(),
+});
+
+export async function updateTenantUserMembershipAction(formData: FormData) {
+  const context = await getCurrentAppContext();
+  const membership = context.activeMembership;
+
+  if (!membership || !canManageTenantUsers(membership.role)) {
+    redirectWithMessage("error", "No tienes permisos para administrar usuarios del tenant.");
+  }
+
+  const parsed = updateTenantUserSchema.safeParse({
+    tenantUserId: formData.get("tenantUserId"),
+    role: formData.get("role"),
+    groupId: formData.get("groupId"),
+  });
+
+  if (!parsed.success) {
+    redirectWithMessage("error", parsed.error.issues[0]?.message ?? "Datos invalidos.");
+  }
+
+  const data = parsed.data;
+  const db = getDb();
+  const tenantUser = await findTenantUserById({
+    tenantId: membership.tenantId,
+    tenantUserId: data.tenantUserId,
+  });
+
+  if (!tenantUser) {
+    redirectWithMessage("error", "No se encontro el usuario del tenant.");
+  }
+
+  await db
+    .update(tenantUsers)
+    .set({
+      role: data.role,
+      groupId: data.groupId || null,
+      updatedAt: new Date(),
+    })
+    .where(eq(tenantUsers.id, data.tenantUserId));
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/users");
+  revalidatePath("/dashboard/reports");
+
+  redirectWithMessage("success", "Asignacion de usuario actualizada correctamente.");
+}
+
+export async function toggleTenantUserActiveAction(formData: FormData) {
+  const context = await getCurrentAppContext();
+  const membership = context.activeMembership;
+
+  if (!membership || !canManageTenantUsers(membership.role)) {
+    redirectWithMessage("error", "No tienes permisos para administrar usuarios del tenant.");
+  }
+
+  const parsed = toggleTenantUserSchema.safeParse({
+    tenantUserId: formData.get("tenantUserId"),
+  });
+
+  if (!parsed.success) {
+    redirectWithMessage("error", "Solicitud invalida.");
+  }
+
+  const data = parsed.data;
+  const db = getDb();
+  const tenantUser = await findTenantUserById({
+    tenantId: membership.tenantId,
+    tenantUserId: data.tenantUserId,
+  });
+
+  if (!tenantUser) {
+    redirectWithMessage("error", "No se encontro el usuario del tenant.");
+  }
+
+  if (tenantUser.id === membership.tenantUserId) {
+    redirectWithMessage("error", "No puedes desactivar tu propia asignacion activa.");
+  }
+
+  await db
+    .update(tenantUsers)
+    .set({
+      isActive: !tenantUser.isActive,
+      updatedAt: new Date(),
+    })
+    .where(eq(tenantUsers.id, tenantUser.id));
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/users");
+
+  redirectWithMessage(
+    "success",
+    tenantUser.isActive ? "Usuario desactivado correctamente." : "Usuario reactivado correctamente.",
+  );
 }

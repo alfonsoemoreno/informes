@@ -17,6 +17,9 @@ export default async function DashboardLayout({
           <Link className="subnav-link" href="/dashboard/users">
             Usuarios
           </Link>
+          <Link className="subnav-link" href="/dashboard/groups">
+            Grupos
+          </Link>
           <Link className="subnav-link" href="/dashboard/publishers">
             Publicadores
           </Link>

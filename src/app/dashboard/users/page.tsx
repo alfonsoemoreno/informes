@@ -5,7 +5,11 @@ import { listTenantGroups } from "@/lib/reporting/queries";
 import { getRoleLabel } from "@/lib/domain/labels";
 import { canManageTenantUsers } from "@/lib/domain/permissions";
 import { tenantRoles } from "@/lib/domain/reporting";
-import { createTenantUserAction } from "@/app/dashboard/users/actions";
+import {
+  createTenantUserAction,
+  toggleTenantUserActiveAction,
+  updateTenantUserMembershipAction,
+} from "@/app/dashboard/users/actions";
 
 export default async function TenantUsersPage({
   searchParams,
@@ -136,6 +140,7 @@ export default async function TenantUsersPage({
                 <th>Rol</th>
                 <th>Grupo</th>
                 <th>Estado</th>
+                {canManageTenantUsers(membership.role) ? <th>Acciones</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -146,6 +151,56 @@ export default async function TenantUsersPage({
                   <td>{getRoleLabel(user.role)}</td>
                   <td>{user.groupName ?? "Sin grupo"}</td>
                   <td>{user.isActive ? "Activo" : "Inactivo"}</td>
+                  {canManageTenantUsers(membership.role) ? (
+                    <td>
+                      <div className="section-stack">
+                        <form action={updateTenantUserMembershipAction} className="form-grid">
+                          <input type="hidden" name="tenantUserId" value={user.tenantUserId} />
+                          <div className="form-grid two-columns">
+                            <div className="field">
+                              <label htmlFor={`role-${user.tenantUserId}`}>Rol</label>
+                              <select
+                                id={`role-${user.tenantUserId}`}
+                                name="role"
+                                defaultValue={user.role}
+                              >
+                                {tenantRoles.map((role) => (
+                                  <option key={role} value={role}>
+                                    {getRoleLabel(role)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="field">
+                              <label htmlFor={`group-${user.tenantUserId}`}>Grupo</label>
+                              <select
+                                id={`group-${user.tenantUserId}`}
+                                name="groupId"
+                                defaultValue={user.groupId ?? ""}
+                              >
+                                <option value="">Sin grupo</option>
+                                {groups.map((group) => (
+                                  <option key={group.id} value={group.id}>
+                                    {group.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                          <button className="secondary-button" type="submit">
+                            Actualizar
+                          </button>
+                        </form>
+
+                        <form action={toggleTenantUserActiveAction}>
+                          <input type="hidden" name="tenantUserId" value={user.tenantUserId} />
+                          <button className="secondary-button" type="submit">
+                            {user.isActive ? "Desactivar" : "Reactivar"}
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

@@ -8,6 +8,7 @@ export async function listTenantUsers(tenantId: string) {
   return db
     .select({
       tenantUserId: tenantUsers.id,
+      appUserId: appUsers.id,
       role: tenantUsers.role,
       isActive: tenantUsers.isActive,
       email: appUsers.email,
@@ -71,6 +72,20 @@ export async function findTenantUser(input: { tenantId: string; appUserId: strin
     .from(tenantUsers)
     .where(
       and(eq(tenantUsers.tenantId, input.tenantId), eq(tenantUsers.appUserId, input.appUserId)),
+    )
+    .limit(1);
+
+  return membership ?? null;
+}
+
+export async function findTenantUserById(input: { tenantId: string; tenantUserId: string }) {
+  const db = getDb();
+
+  const [membership] = await db
+    .select()
+    .from(tenantUsers)
+    .where(
+      and(eq(tenantUsers.tenantId, input.tenantId), eq(tenantUsers.id, input.tenantUserId)),
     )
     .limit(1);
 
