@@ -192,3 +192,85 @@ export async function listRecentReports(tenantId: string, limit = 12) {
     .orderBy(desc(monthlyReports.reportYear), desc(monthlyReports.reportMonth), desc(monthlyReports.submittedAt))
     .limit(limit);
 }
+
+export async function getPublisherDetails(input: {
+  tenantId: string;
+  publisherId: string;
+}) {
+  const db = getDb();
+
+  const [publisher] = await db
+    .select()
+    .from(publishers)
+    .where(and(eq(publishers.id, input.publisherId), eq(publishers.tenantId, input.tenantId)))
+    .limit(1);
+
+  if (!publisher) {
+    return null;
+  }
+
+  const [groupHistory, statusHistory, reports] = await Promise.all([
+    db
+      .select({
+        id: publisherGroupAssignments.id,
+        effectiveFrom: publisherGroupAssignments.effectiveFrom,
+        effectiveTo: publisherGroupAssignments.effectiveTo,
+        notes: publisherGroupAssignments.notes,
+        groupName: preachingGroups.name,
+        groupId: preachingGroups.id,
+      })
+      .from(publisherGroupAssignments)
+      .innerJoin(preachingGroups, eq(publisherGroupAssignments.groupId, preachingGroups.id))
+      .where(
+        and(
+          eq(publisherGroupAssignments.tenantId, input.tenantId),
+          eq(publisherGroupAssignments.publisherId, input.publisherId),
+        ),
+      )
+      .orderBy(desc(publisherGroupAssignments.effectiveFrom)),
+    db
+      .select({
+        id: publisherStatusAssignments.id,
+        effectiveFrom: publisherStatusAssignments.effectiveFrom,
+        effectiveTo: publisherStatusAssignments.effectiveTo,
+        notes: publisherStatusAssignments.notes,
+        status: publisherStatusAssignments.status,
+      })
+      .from(publisherStatusAssignments)
+      .where(
+        and(
+          eq(publisherStatusAssignments.tenantId, input.tenantId),
+          eq(publisherStatusAssignments.publisherId, input.publisherId),
+        ),
+      )
+      .orderBy(desc(publisherStatusAssignments.effectiveFrom)),
+    db
+      .select({
+        id: monthlyReports.id,
+        reportYear: monthlyReports.reportYear,
+        reportMonth: monthlyReports.reportMonth,
+        publisherStatus: monthlyReports.publisherStatus,
+        participated: monthlyReports.participated,
+        preachingHours: monthlyReports.preachingHours,
+        bibleStudies: monthlyReports.bibleStudies,
+        notes: monthlyReports.notes,
+        groupName: preachingGroups.name,
+      })
+      .from(monthlyReports)
+      .innerJoin(preachingGroups, eq(monthlyReports.groupId, preachingGroups.id))
+      .where(
+        and(
+          eq(monthlyReports.tenantId, input.tenantId),
+          eq(monthlyReports.publisherId, input.publisherId),
+        ),
+      )
+      .orderBy(desc(monthlyReports.reportYear), desc(monthlyReports.reportMonth)),
+  ]);
+
+  return {
+    publisher,
+    groupHistory,
+    statusHistory,
+    reports,
+  };
+}

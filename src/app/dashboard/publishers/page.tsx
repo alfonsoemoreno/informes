@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentAppContext } from "@/lib/app-context";
 import { getPublisherStatusLabel, getRoleLabel } from "@/lib/domain/labels";
@@ -193,7 +194,14 @@ export default async function PublishersPage({
                       ? getPublisherStatusLabel(publisher.currentStatus)
                       : "Sin estado vigente"}
                   </td>
-                  <td>{publisher.publisherCode ?? "Sin codigo"}</td>
+                  <td>
+                    <div className="action-row">
+                      <span>{publisher.publisherCode ?? "Sin codigo"}</span>
+                      <Link className="secondary-button" href={`/dashboard/publishers/${publisher.id}`}>
+                        Ver detalle
+                      </Link>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
