@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, sql, sum } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import {
   monthlyReports,
@@ -272,5 +272,93 @@ export async function getPublisherDetails(input: {
     groupHistory,
     statusHistory,
     reports,
+  };
+}
+
+export async function getMonthlySummary(input: {
+  tenantId: string;
+  year: number;
+  month: number;
+}) {
+  const db = getDb();
+
+  const [totals] = await db
+    .select({
+      totalReports: count(monthlyReports.id),
+      totalParticipated: sum(sql<number>`case when ${monthlyReports.participated} then 1 else 0 end`),
+      totalHours: sum(sql<number>`coalesce(${monthlyReports.preachingHours}, 0)`),
+      totalBibleStudies: sum(monthlyReports.bibleStudies),
+    })
+    .from(monthlyReports)
+    .where(
+      and(
+        eq(monthlyReports.tenantId, input.tenantId),
+        eq(monthlyReports.reportYear, input.year),
+        eq(monthlyReports.reportMonth, input.month),
+      ),
+    );
+
+  const [byGroup, byStatus] = await Promise.all([
+    db
+      .select({
+        groupId: preachingGroups.id,
+        groupName: preachingGroups.name,
+        totalReports: count(monthlyReports.id),
+        totalParticipated: sum(sql<number>`case when ${monthlyReports.participated} then 1 else 0 end`),
+        totalHours: sum(sql<number>`coalesce(${monthlyReports.preachingHours}, 0)`),
+        totalBibleStudies: sum(monthlyReports.bibleStudies),
+      })
+      .from(monthlyReports)
+      .innerJoin(preachingGroups, eq(monthlyReports.groupId, preachingGroups.id))
+      .where(
+        and(
+          eq(monthlyReports.tenantId, input.tenantId),
+          eq(monthlyReports.reportYear, input.year),
+          eq(monthlyReports.reportMonth, input.month),
+        ),
+      )
+      .groupBy(preachingGroups.id, preachingGroups.name)
+      .orderBy(asc(preachingGroups.name)),
+    db
+      .select({
+        publisherStatus: monthlyReports.publisherStatus,
+        totalReports: count(monthlyReports.id),
+        totalParticipated: sum(sql<number>`case when ${monthlyReports.participated} then 1 else 0 end`),
+        totalHours: sum(sql<number>`coalesce(${monthlyReports.preachingHours}, 0)`),
+        totalBibleStudies: sum(monthlyReports.bibleStudies),
+      })
+      .from(monthlyReports)
+      .where(
+        and(
+          eq(monthlyReports.tenantId, input.tenantId),
+          eq(monthlyReports.reportYear, input.year),
+          eq(monthlyReports.reportMonth, input.month),
+        ),
+      )
+      .groupBy(monthlyReports.publisherStatus)
+      .orderBy(asc(monthlyReports.publisherStatus)),
+  ]);
+
+  return {
+    totals: {
+      totalReports: Number(totals?.totalReports ?? 0),
+      totalParticipated: Number(totals?.totalParticipated ?? 0),
+      totalHours: Number(totals?.totalHours ?? 0),
+      totalBibleStudies: Number(totals?.totalBibleStudies ?? 0),
+    },
+    byGroup: byGroup.map((row) => ({
+      ...row,
+      totalReports: Number(row.totalReports ?? 0),
+      totalParticipated: Number(row.totalParticipated ?? 0),
+      totalHours: Number(row.totalHours ?? 0),
+      totalBibleStudies: Number(row.totalBibleStudies ?? 0),
+    })),
+    byStatus: byStatus.map((row) => ({
+      ...row,
+      totalReports: Number(row.totalReports ?? 0),
+      totalParticipated: Number(row.totalParticipated ?? 0),
+      totalHours: Number(row.totalHours ?? 0),
+      totalBibleStudies: Number(row.totalBibleStudies ?? 0),
+    })),
   };
 }

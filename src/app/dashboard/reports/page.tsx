@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentAppContext } from "@/lib/app-context";
 import { getPublisherStatusLabel, getRoleLabel } from "@/lib/domain/labels";
 import {
@@ -6,7 +7,11 @@ import {
   canViewCongregationReports,
 } from "@/lib/domain/permissions";
 import { formatMonthYear } from "@/lib/domain/periods";
-import { listAccessiblePublishersForReports, listRecentReports } from "@/lib/reporting/queries";
+import {
+  getMonthlySummary,
+  listAccessiblePublishersForReports,
+  listRecentReports,
+} from "@/lib/reporting/queries";
 import { createMonthlyReportAction } from "@/app/dashboard/reports/actions";
 
 function getCurrentPeriod() {
@@ -28,6 +33,15 @@ export default async function ReportsPage({
     typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : null;
   const message =
     typeof resolvedSearchParams.message === "string" ? resolvedSearchParams.message : null;
+  const currentPeriod = getCurrentPeriod();
+  const selectedMonth =
+    typeof resolvedSearchParams.month === "string"
+      ? Number(resolvedSearchParams.month)
+      : currentPeriod.month;
+  const selectedYear =
+    typeof resolvedSearchParams.year === "string"
+      ? Number(resolvedSearchParams.year)
+      : currentPeriod.year;
 
   if (!context.authSession?.user) {
     redirect("/auth/sign-in");
@@ -54,16 +68,20 @@ export default async function ReportsPage({
     );
   }
 
-  const period = getCurrentPeriod();
-  const [accessiblePublishers, recentReports] = await Promise.all([
+  const [accessiblePublishers, recentReports, summary] = await Promise.all([
     listAccessiblePublishersForReports({
       tenantId: membership.tenantId,
       role: membership.role,
       groupId: membership.groupId,
-      year: period.year,
-      month: period.month,
+      year: selectedYear,
+      month: selectedMonth,
     }),
     listRecentReports(membership.tenantId),
+    getMonthlySummary({
+      tenantId: membership.tenantId,
+      year: selectedYear,
+      month: selectedMonth,
+    }),
   ]);
 
   return (
@@ -76,6 +94,17 @@ export default async function ReportsPage({
           participacion automaticamente y exigen horas; los publicadores solo informan
           participacion, cursos y observaciones.
         </p>
+        <div className="action-row">
+          <span className="status-chip">
+            Resumen de {formatMonthYear(selectedYear, selectedMonth)}
+          </span>
+          <Link
+            className="secondary-button"
+            href={`/dashboard/reports?month=${currentPeriod.month}&year=${currentPeriod.year}`}
+          >
+            Ir al mes actual
+          </Link>
+        </div>
       </section>
 
       {message ? (
@@ -83,6 +112,129 @@ export default async function ReportsPage({
           {message}
         </section>
       ) : null}
+
+      <section className="panel" style={{ padding: "28px", display: "grid", gap: "18px" }}>
+        <div className="action-row" style={{ justifyContent: "space-between" }}>
+          <h2>Resumen mensual</h2>
+          <form method="get" className="action-row">
+            <div className="field" style={{ minWidth: "110px" }}>
+              <label htmlFor="monthFilter">Mes</label>
+              <input
+                id="monthFilter"
+                name="month"
+                type="number"
+                min="1"
+                max="12"
+                defaultValue={selectedMonth}
+              />
+            </div>
+            <div className="field" style={{ minWidth: "130px" }}>
+              <label htmlFor="yearFilter">Anio</label>
+              <input id="yearFilter" name="year" type="number" defaultValue={selectedYear} />
+            </div>
+            <button className="secondary-button" type="submit">
+              Ver resumen
+            </button>
+          </form>
+        </div>
+
+        <div className="metrics-grid">
+          <article className="metric-card">
+            <span className="eyebrow">Informes</span>
+            <strong>{summary.totals.totalReports}</strong>
+            <span className="hint">Informes cargados en el período.</span>
+          </article>
+          <article className="metric-card">
+            <span className="eyebrow">Participaron</span>
+            <strong>{summary.totals.totalParticipated}</strong>
+            <span className="hint">Publicadores que marcaron participación.</span>
+          </article>
+          <article className="metric-card">
+            <span className="eyebrow">Horas</span>
+            <strong>{summary.totals.totalHours}</strong>
+            <span className="hint">Suma de horas reportadas por precursores.</span>
+          </article>
+          <article className="metric-card">
+            <span className="eyebrow">Cursos</span>
+            <strong>{summary.totals.totalBibleStudies}</strong>
+            <span className="hint">Cursos bíblicos conducidos en el mes.</span>
+          </article>
+        </div>
+      </section>
+
+      <section
+        style={{
+          display: "grid",
+          gap: "20px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+        }}
+      >
+        <article className="panel" style={{ padding: "28px" }}>
+          <div className="action-row" style={{ justifyContent: "space-between", marginBottom: "18px" }}>
+            <h2>Resumen por grupo</h2>
+            <span className="hint">{summary.byGroup.length} grupos</span>
+          </div>
+          {summary.byGroup.length === 0 ? (
+            <div className="empty-state">No hay informes para este período.</div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Grupo</th>
+                  <th>Informes</th>
+                  <th>Participaron</th>
+                  <th>Horas</th>
+                  <th>Cursos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.byGroup.map((group) => (
+                  <tr key={group.groupId}>
+                    <td>{group.groupName}</td>
+                    <td>{group.totalReports}</td>
+                    <td>{group.totalParticipated}</td>
+                    <td>{group.totalHours}</td>
+                    <td>{group.totalBibleStudies}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </article>
+
+        <article className="panel" style={{ padding: "28px" }}>
+          <div className="action-row" style={{ justifyContent: "space-between", marginBottom: "18px" }}>
+            <h2>Resumen por tipo</h2>
+            <span className="hint">{summary.byStatus.length} tipos</span>
+          </div>
+          {summary.byStatus.length === 0 ? (
+            <div className="empty-state">No hay informes para este período.</div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Informes</th>
+                  <th>Participaron</th>
+                  <th>Horas</th>
+                  <th>Cursos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.byStatus.map((item) => (
+                  <tr key={item.publisherStatus}>
+                    <td>{getPublisherStatusLabel(item.publisherStatus)}</td>
+                    <td>{item.totalReports}</td>
+                    <td>{item.totalParticipated}</td>
+                    <td>{item.totalHours}</td>
+                    <td>{item.totalBibleStudies}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </article>
+      </section>
 
       {canSubmitReports(membership.role) ? (
         <section className="panel" style={{ padding: "28px", display: "grid", gap: "18px" }}>
@@ -105,11 +257,11 @@ export default async function ReportsPage({
               <div className="form-grid two-columns">
                 <div className="field">
                   <label htmlFor="reportMonth">Mes</label>
-                  <input id="reportMonth" name="reportMonth" type="number" min="1" max="12" defaultValue={period.month} required />
+                  <input id="reportMonth" name="reportMonth" type="number" min="1" max="12" defaultValue={selectedMonth} required />
                 </div>
                 <div className="field">
                   <label htmlFor="reportYear">Anio</label>
-                  <input id="reportYear" name="reportYear" type="number" defaultValue={period.year} required />
+                  <input id="reportYear" name="reportYear" type="number" defaultValue={selectedYear} required />
                 </div>
               </div>
             </div>
