@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { getCurrentAppContext } from "@/lib/app-context";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const context = await getCurrentAppContext();
+  const isSuperadmin = Boolean(context.appUser?.isSuperadmin);
+
   return (
     <main className="page-section">
       <div className="app-shell section-stack">
@@ -10,12 +14,20 @@ export default function DashboardLayout({
           <Link className="subnav-link" href="/dashboard">
             Resumen
           </Link>
+          <Link className="subnav-link" href="/dashboard/users">
+            Usuarios
+          </Link>
           <Link className="subnav-link" href="/dashboard/publishers">
             Publicadores
           </Link>
           <Link className="subnav-link" href="/dashboard/reports">
             Informes mensuales
           </Link>
+          {isSuperadmin ? (
+            <Link className="subnav-link" href="/dashboard/admin/tenants">
+              Congregaciones
+            </Link>
+          ) : null}
         </nav>
         {children}
       </div>

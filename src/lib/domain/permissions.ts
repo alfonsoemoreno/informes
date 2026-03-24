@@ -4,6 +4,10 @@ export function canManagePublishers(role: TenantRole) {
   return role === "secretary";
 }
 
+export function canManageTenantUsers(role: TenantRole) {
+  return role === "secretary";
+}
+
 export function canSubmitReports(role: TenantRole) {
   return role === "secretary" || role === "group_overseer" || role === "group_assistant";
 }
