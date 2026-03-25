@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Publicadores - Congregation Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-background": "#1b1c1c",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#e3e2e2",
+              "primary": "#182545",
+              "on-secondary-container": "#2c5e7f",
+              "error-container": "#ffdad6",
+              "background": "#fbf9f9",
+              "surface-container-high": "#e9e8e7",
+              "on-secondary": "#ffffff",
+              "on-primary-container": "#99a6cc",
+              "on-secondary-fixed": "#001e2f",
+              "inverse-surface": "#303031",
+              "secondary-container": "#a7d7fd",
+              "on-tertiary": "#ffffff",
+              "error": "#ba1a1a",
+              "secondary": "#316384",
+              "surface-bright": "#fbf9f9",
+              "outline": "#75777f",
+              "on-primary": "#ffffff",
+              "on-error": "#ffffff",
+              "secondary-fixed": "#c9e6ff",
+              "on-tertiary-container": "#a7a6a6",
+              "secondary-fixed-dim": "#9cccf1",
+              "primary-fixed": "#dae2ff",
+              "on-tertiary-fixed": "#1b1c1c",
+              "surface": "#fbf9f9",
+              "tertiary-fixed": "#e4e2e2",
+              "inverse-on-surface": "#f2f0f0",
+              "on-surface-variant": "#45464e",
+              "on-primary-fixed": "#0c1a3a",
+              "primary-container": "#2e3b5c",
+              "on-secondary-fixed-variant": "#134b6b",
+              "surface-container": "#efeded",
+              "inverse-primary": "#b9c6ee",
+              "on-surface": "#1b1c1c",
+              "outline-variant": "#c5c6cf",
+              "on-error-container": "#93000a",
+              "surface-dim": "#dbdad9",
+              "tertiary-container": "#3c3c3c",
+              "tertiary": "#262627",
+              "surface-tint": "#515e81",
+              "surface-container-low": "#f5f3f3",
+              "on-tertiary-fixed-variant": "#474747",
+              "primary-fixed-dim": "#b9c6ee",
+              "tertiary-fixed-dim": "#c8c6c6",
+              "surface-variant": "#e3e2e2",
+              "on-primary-fixed-variant": "#394668"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-header {
+        background: rgba(251, 249, 249, 0.7);
+        backdrop-filter: blur(20px);
+      }
+      .signature-gradient {
+        background: linear-gradient(135deg, #182545 0%, #2e3b5c 100%);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full z-50 glass-header shadow-sm h-16 flex justify-between items-center px-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="corporate_fare">corporate_fare</span>
+<span class="text-xl font-bold text-primary tracking-tight font-headline">Congregation Admin</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-surface-container-high rounded-full px-4 py-1.5 gap-2 group focus-within:ring-2 ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64 placeholder:text-on-surface-variant/60" placeholder="Buscar publicador..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 pt-20 bg-surface-container-low hidden md:flex flex-col gap-y-2 pl-4 pr-0">
+<div class="mb-6 px-4">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-sm" data-icon="apartment">apartment</span>
+</div>
+<h2 class="text-sm font-black text-primary uppercase tracking-wider">Central Congregation</h2>
+</div>
+<p class="text-[10px] text-on-surface-variant font-bold ml-11 opacity-60">ADMIN PORTAL</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-bright transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Summary</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-bright transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-medium text-sm">Users</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-bright transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="corporate_fare">corporate_fare</span>
+<span class="font-medium text-sm">Groups</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 bg-surface-container-lowest text-primary rounded-l-full shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-bold text-sm tracking-tight">Publishers</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-bright transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 px-6 pb-12 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-primary/60 font-medium text-sm">
+<span>Directorio</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span>Listado General</span>
+</div>
+<h1 class="text-4xl font-extrabold text-on-surface tracking-tight font-headline">Gestión de Publicadores</h1>
+<p class="text-on-surface-variant max-w-xl text-lg leading-relaxed">
+                        Administre el registro y estado ministerial de los publicadores de la congregación de manera centralizada.
+                    </p>
+</div>
+<button class="signature-gradient text-on-primary px-6 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    Nuevo Publicador
+                </button>
+</div>
+<!-- Dashboard Stats Tonal Layering -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.1em] mb-1">Total Publicadores</p>
+<p class="text-2xl font-black text-primary">124</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.1em] mb-1">Precursores Regulares</p>
+<p class="text-2xl font-black text-secondary">18</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.1em] mb-1">Auxiliares Activos</p>
+<p class="text-2xl font-black text-on-secondary-container">12</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.1em] mb-1">Grupos Activos</p>
+<p class="text-2xl font-black text-primary">8</p>
+</div>
+</div>
+<!-- List Table Container -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden border border-outline-variant/10">
+<div class="overflow-x-auto">
+<table class="w-full border-collapse text-left">
+<thead>
+<tr class="bg-surface-container-high/30">
+<th class="px-6 py-4 text-[11px] font-black text-on-surface-variant uppercase tracking-widest">Publicador</th>
+<th class="px-6 py-4 text-[11px] font-black text-on-surface-variant uppercase tracking-widest">Grupo</th>
+<th class="px-6 py-4 text-[11px] font-black text-on-surface-variant uppercase tracking-widest">Estado Ministerial</th>
+<th class="px-6 py-4 text-[11px] font-black text-on-surface-variant uppercase tracking-widest text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm">
+                                            AR
+                                        </div>
+<div>
+<p class="font-bold text-on-surface">Andrés Rivera</p>
+<p class="text-xs text-on-surface-variant">andres.rivera@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full">Grupo 3</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-sm font-medium text-on-surface">Precursor Regular</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">
+                                            MC
+                                        </div>
+<div>
+<p class="font-bold text-on-surface">Mariana Castro</p>
+<p class="text-xs text-on-surface-variant">m.castro@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full">Grupo 1</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="text-sm font-medium text-on-surface">Publicador</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest text-primary flex items-center justify-center font-bold text-sm">
+                                            JL
+                                        </div>
+<div>
+<p class="font-bold text-on-surface">Jorge López</p>
+<p class="text-xs text-on-surface-variant">jorge.l@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full">Grupo 5</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-on-secondary-container"></span>
+<span class="text-sm font-medium text-on-surface">Precursor Auxiliar</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+                                            ST
+                                        </div>
+<div>
+<p class="font-bold text-on-surface">Sara Torres</p>
+<p class="text-xs text-on-surface-variant">storres@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-bold rounded-full">Grupo 3</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-sm font-medium text-on-surface">Precursor Regular</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer -->
+<div class="px-6 py-4 bg-surface-container-low flex items-center justify-between">
+<p class="text-xs text-on-surface-variant font-medium">Mostrando 4 de 124 publicadores</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant bg-primary text-on-primary text-xs font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors text-on-surface-variant text-xs font-bold">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Asymmetric Editorial Moment -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+<div class="md:col-span-7 bg-secondary-container/30 p-8 rounded-2xl relative overflow-hidden group">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h3 class="text-2xl font-black text-primary mb-2">Reportes Mensuales</h3>
+<p class="text-on-secondary-container leading-relaxed mb-6 max-w-md">
+                            Recuerde que el cierre de informes se realiza el día 5 de cada mes. Asegúrese de que todos los secretarios de grupo hayan ingresado los datos.
+                        </p>
+<button class="bg-white/80 backdrop-blur text-primary font-bold px-5 py-2.5 rounded-lg text-sm shadow-sm hover:bg-white transition-colors">
+                            Ver Calendario
+                        </button>
+</div>
+<!-- Abstract Shape Decoration -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-secondary-container rounded-full opacity-20 blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+</div>
+<div class="md:col-span-5">
+<div class="bg-surface-container-high rounded-2xl p-8 h-full flex flex-col justify-center">
+<h4 class="font-bold text-primary text-lg mb-4">Recursos Útiles</h4>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 text-on-surface-variant group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="description">description</span>
+<span class="text-sm font-medium underline underline-offset-4 decoration-outline-variant">Manual de Secretario (S-1)</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
+<span class="text-sm font-medium underline underline-offset-4 decoration-outline-variant">Planificación Anual 2024</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="cloud_download">cloud_download</span>
+<span class="text-sm font-medium underline underline-offset-4 decoration-outline-variant">Descargar Base de Datos (CSV)</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest flex justify-around items-center h-16 shadow-[0_-1px_10px_rgba(0,0,0,0.05)] z-50">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">Resumen</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-bold">Publicadores</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="corporate_fare">corporate_fare</span>
+<span class="text-[10px] font-bold">Grupos</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="text-[10px] font-bold">Ajustes</span>
+</a>
+</nav>
+</body></html>
