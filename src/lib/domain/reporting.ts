@@ -14,6 +14,8 @@ export const publisherStatuses = [
 
 export type TenantRole = (typeof tenantRoles)[number];
 export type PublisherStatus = (typeof publisherStatuses)[number];
+export const publisherReportingStates = ["up_to_date", "irregular", "inactive"] as const;
+export type PublisherReportingState = (typeof publisherReportingStates)[number];
 
 export function statusRequiresHours(status: PublisherStatus) {
   return status !== "publisher";

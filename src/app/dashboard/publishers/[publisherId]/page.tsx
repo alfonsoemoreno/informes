@@ -9,11 +9,18 @@ import {
   ReportsIcon,
 } from "@/components/superadmin/icons";
 import { getCurrentAppContext } from "@/lib/app-context";
-import { getPublisherStatusLabel } from "@/lib/domain/labels";
+import {
+  getPublisherReportingStateLabel,
+  getPublisherStatusLabel,
+} from "@/lib/domain/labels";
 import { formatMonthYear } from "@/lib/domain/periods";
 import { canManagePublishers } from "@/lib/domain/permissions";
 import { publisherStatuses } from "@/lib/domain/reporting";
-import { listTenantGroups, getPublisherDetails } from "@/lib/reporting/queries";
+import {
+  getPublisherDetails,
+  getPublisherReportingStates,
+  listTenantGroups,
+} from "@/lib/reporting/queries";
 import {
   addPublisherGroupAssignmentAction,
   addPublisherStatusAssignmentAction,
@@ -41,6 +48,14 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+function getCurrentPeriod() {
+  const now = new Date();
+  return {
+    year: now.getUTCFullYear(),
+    month: now.getUTCMonth() + 1,
+  };
 }
 
 export default async function PublisherDetailsPage({
@@ -77,11 +92,19 @@ export default async function PublisherDetailsPage({
     );
   }
 
-  const [groups, details] = await Promise.all([
+  const currentPeriod = getCurrentPeriod();
+
+  const [groups, details, reportingStates] = await Promise.all([
     listTenantGroups(membership.tenantId),
     getPublisherDetails({
       tenantId: membership.tenantId,
       publisherId,
+    }),
+    getPublisherReportingStates({
+      tenantId: membership.tenantId,
+      currentYear: currentPeriod.year,
+      currentMonth: currentPeriod.month,
+      publisherIds: [publisherId],
     }),
   ]);
 
@@ -92,6 +115,7 @@ export default async function PublisherDetailsPage({
   const currentGroup = details.groupHistory[0] ?? null;
   const currentStatus = details.statusHistory[0] ?? null;
   const canManage = canManagePublishers(membership.role);
+  const reportingState = reportingStates.get(details.publisher.id) ?? "up_to_date";
 
   return (
     <div className="publisher-detail-page">
@@ -113,6 +137,9 @@ export default async function PublisherDetailsPage({
                   ? getPublisherStatusLabel(currentStatus.status)
                   : "Sin estado vigente"}
               </p>
+              <div className={`publisher-reporting-chip tone-${reportingState} publisher-detail-reporting-chip`}>
+                {getPublisherReportingStateLabel(reportingState)}
+              </div>
             </div>
           </div>
 
@@ -132,6 +159,10 @@ export default async function PublisherDetailsPage({
             <article className="publisher-detail-summary-card">
               <span>Informes historicos</span>
               <strong>{details.reports.length}</strong>
+            </article>
+            <article className="publisher-detail-summary-card">
+              <span>Estado de informes</span>
+              <strong>{getPublisherReportingStateLabel(reportingState)}</strong>
             </article>
           </div>
         </div>
@@ -176,6 +207,10 @@ export default async function PublisherDetailsPage({
                     ? getPublisherStatusLabel(currentStatus.status)
                     : "Sin estado vigente"}
                 </strong>
+              </div>
+              <div>
+                <span>Estado de informes</span>
+                <strong>{getPublisherReportingStateLabel(reportingState)}</strong>
               </div>
             </div>
           </section>

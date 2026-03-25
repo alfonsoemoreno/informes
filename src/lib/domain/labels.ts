@@ -1,4 +1,8 @@
-import type { PublisherStatus, TenantRole } from "@/lib/domain/reporting";
+import type {
+  PublisherReportingState,
+  PublisherStatus,
+  TenantRole,
+} from "@/lib/domain/reporting";
 
 const roleLabels: Record<TenantRole, string> = {
   secretary: "Secretario",
@@ -14,10 +18,20 @@ const statusLabels: Record<PublisherStatus, string> = {
   special_pioneer: "Precursor especial",
 };
 
+const reportingStateLabels: Record<PublisherReportingState, string> = {
+  up_to_date: "Al día",
+  irregular: "Irregular",
+  inactive: "Inactivo",
+};
+
 export function getRoleLabel(role: TenantRole) {
   return roleLabels[role];
 }
 
 export function getPublisherStatusLabel(status: PublisherStatus) {
   return statusLabels[status];
+}
+
+export function getPublisherReportingStateLabel(state: PublisherReportingState) {
+  return reportingStateLabels[state];
 }

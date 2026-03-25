@@ -11,8 +11,15 @@ import {
   SearchIcon,
 } from "@/components/superadmin/icons";
 import { createPublisherAction } from "@/app/dashboard/publishers/actions";
-import { getPublisherStatusLabel } from "@/lib/domain/labels";
-import { publisherStatuses, type PublisherStatus } from "@/lib/domain/reporting";
+import {
+  getPublisherReportingStateLabel,
+  getPublisherStatusLabel,
+} from "@/lib/domain/labels";
+import {
+  publisherStatuses,
+  type PublisherReportingState,
+  type PublisherStatus,
+} from "@/lib/domain/reporting";
 
 type GroupOption = {
   id: string;
@@ -27,6 +34,7 @@ type PublisherItem = {
   publisherCode: string | null;
   currentGroupName: string;
   currentStatus: PublisherStatus | null;
+  reportingState: PublisherReportingState;
 };
 
 type PublisherManagementProps = {
@@ -72,6 +80,7 @@ export function PublisherManagement({
 }: PublisherManagementProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [reportingFilter, setReportingFilter] = useState("all");
   const [createOpen, setCreateOpen] = useState(false);
 
   const filteredPublishers = publishers.filter((publisher) => {
@@ -85,12 +94,16 @@ export function PublisherManagement({
       statusFilter === "all" ||
       (statusFilter === "none" && publisher.currentStatus === null) ||
       publisher.currentStatus === statusFilter;
+    const matchesReporting =
+      reportingFilter === "all" || publisher.reportingState === reportingFilter;
 
-    return matchesQuery && matchesStatus;
+    return matchesQuery && matchesStatus && matchesReporting;
   });
 
   const regularCount = publishers.filter((publisher) => publisher.currentStatus === "regular_pioneer").length;
   const auxiliaryCount = publishers.filter((publisher) => publisher.currentStatus === "auxiliary_pioneer").length;
+  const irregularCount = publishers.filter((publisher) => publisher.reportingState === "irregular").length;
+  const inactiveCount = publishers.filter((publisher) => publisher.reportingState === "inactive").length;
 
   return (
     <div className="tenant-publishers-page">
@@ -132,8 +145,8 @@ export function PublisherManagement({
           <strong>{auxiliaryCount}</strong>
         </article>
         <article className="tenant-publisher-stat">
-          <span>Grupos activos</span>
-          <strong>{groups.length}</strong>
+          <span>Irregulares / Inactivos</span>
+          <strong>{irregularCount} / {inactiveCount}</strong>
         </article>
       </section>
 
@@ -160,6 +173,17 @@ export function PublisherManagement({
           <option value="special_pioneer">Precursor especial</option>
           <option value="none">Sin estado vigente</option>
         </select>
+
+        <select
+          className="tenant-compact-select"
+          value={reportingFilter}
+          onChange={(event) => setReportingFilter(event.target.value)}
+        >
+          <option value="all">Todos los informes</option>
+          <option value="up_to_date">Al dia</option>
+          <option value="irregular">Irregular</option>
+          <option value="inactive">Inactivo</option>
+        </select>
       </section>
 
       <section className="tenant-publishers-table-card">
@@ -173,6 +197,7 @@ export function PublisherManagement({
                   <th>Publicador</th>
                   <th>Grupo</th>
                   <th>Estado ministerial</th>
+                  <th>Estado de informes</th>
                   <th>Codigo</th>
                   <th>Acciones</th>
                 </tr>
@@ -203,6 +228,11 @@ export function PublisherManagement({
                             : "Sin estado vigente"}
                         </span>
                       </div>
+                    </td>
+                    <td>
+                      <span className={`publisher-reporting-chip tone-${publisher.reportingState}`}>
+                        {getPublisherReportingStateLabel(publisher.reportingState)}
+                      </span>
                     </td>
                     <td>{publisher.publisherCode ?? "Sin codigo"}</td>
                     <td>

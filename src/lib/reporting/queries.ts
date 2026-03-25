@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, sql, sum } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, or, sql, sum } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import {
   monthlyReports,
@@ -8,11 +8,136 @@ import {
   publisherStatusAssignments,
   tenantUsers,
 } from "@/lib/db/schema";
-import { getMonthBounds, overlapsPeriod } from "@/lib/domain/periods";
-import { publisherStatuses, type PublisherStatus } from "@/lib/domain/reporting";
+import {
+  getMonthBounds,
+  getRollingMonthPeriods,
+  getTheocraticYearRange,
+  overlapsPeriod,
+  startOfUtcMonth,
+} from "@/lib/domain/periods";
+import {
+  publisherStatuses,
+  type PublisherReportingState,
+  type PublisherStatus,
+} from "@/lib/domain/reporting";
 
 function isPublisherStatus(value: string): value is PublisherStatus {
   return publisherStatuses.includes(value as PublisherStatus);
+}
+
+function getReportingStateFromPeriods(input: {
+  createdAt: Date;
+  currentYear: number;
+  currentMonth: number;
+  reportedPeriods: Set<string>;
+}): PublisherReportingState {
+  const rollingPeriods = getRollingMonthPeriods(input.currentYear, input.currentMonth, 6);
+  const createdMonth = startOfUtcMonth(
+    input.createdAt.getUTCFullYear(),
+    input.createdAt.getUTCMonth() + 1,
+  );
+  const firstEvaluatedMonth = rollingPeriods.find((period) => {
+    const periodDate = startOfUtcMonth(period.year, period.month);
+    return periodDate >= createdMonth;
+  });
+  const effectivePeriods = firstEvaluatedMonth
+    ? rollingPeriods.filter((period) => {
+        const periodDate = startOfUtcMonth(period.year, period.month);
+        return periodDate >= createdMonth;
+      })
+    : [];
+
+  if (effectivePeriods.length === 0) {
+    return "up_to_date";
+  }
+
+  const reportedCount = effectivePeriods.filter((period) => input.reportedPeriods.has(period.key)).length;
+
+  if (effectivePeriods.length === 6 && reportedCount === 0) {
+    return "inactive";
+  }
+
+  if (reportedCount < effectivePeriods.length) {
+    return "irregular";
+  }
+
+  return "up_to_date";
+}
+
+export async function getPublisherReportingStates(input: {
+  tenantId: string;
+  currentYear: number;
+  currentMonth: number;
+  publisherIds?: string[];
+}) {
+  const db = getDb();
+  const rollingPeriods = getRollingMonthPeriods(input.currentYear, input.currentMonth, 6);
+  const publisherFilters = [
+    eq(publishers.tenantId, input.tenantId),
+    eq(publishers.isActive, true),
+  ];
+
+  if (input.publisherIds && input.publisherIds.length > 0) {
+    publisherFilters.push(inArray(publishers.id, input.publisherIds));
+  }
+
+  const publisherRows = await db
+    .select({
+      id: publishers.id,
+      createdAt: publishers.createdAt,
+    })
+    .from(publishers)
+    .where(and(...publisherFilters));
+
+  const periodFilter = or(
+    ...rollingPeriods.map((period) =>
+      and(
+        eq(monthlyReports.reportYear, period.year),
+        eq(monthlyReports.reportMonth, period.month),
+      ),
+    ),
+  );
+
+  const reportRows =
+    publisherRows.length === 0
+      ? []
+      : await db
+          .select({
+            publisherId: monthlyReports.publisherId,
+            reportYear: monthlyReports.reportYear,
+            reportMonth: monthlyReports.reportMonth,
+          })
+          .from(monthlyReports)
+          .where(
+            and(
+              eq(monthlyReports.tenantId, input.tenantId),
+              periodFilter,
+              inArray(
+                monthlyReports.publisherId,
+                publisherRows.map((row) => row.id),
+              ),
+            ),
+          );
+
+  const periodsByPublisher = new Map<string, Set<string>>();
+  for (const row of reportRows) {
+    const key = `${row.reportYear}-${String(row.reportMonth).padStart(2, "0")}`;
+    const current = periodsByPublisher.get(row.publisherId) ?? new Set<string>();
+    current.add(key);
+    periodsByPublisher.set(row.publisherId, current);
+  }
+
+  return new Map(
+    publisherRows.map((publisher) => [
+      publisher.id,
+      getReportingStateFromPeriods({
+        createdAt: publisher.createdAt,
+        currentYear: input.currentYear,
+        currentMonth: input.currentMonth,
+        reportedPeriods: periodsByPublisher.get(publisher.id) ?? new Set<string>(),
+      }),
+    ]),
+  );
 }
 
 export async function resolvePublisherStateForMonth(input: {
@@ -354,6 +479,68 @@ export async function getMonthlySummary(input: {
       totalHours: Number(row.totalHours ?? 0),
       totalBibleStudies: Number(row.totalBibleStudies ?? 0),
     })),
+    byStatus: byStatus.map((row) => ({
+      ...row,
+      totalReports: Number(row.totalReports ?? 0),
+      totalParticipated: Number(row.totalParticipated ?? 0),
+      totalHours: Number(row.totalHours ?? 0),
+      totalBibleStudies: Number(row.totalBibleStudies ?? 0),
+    })),
+  };
+}
+
+export async function getTheocraticYearSummary(input: {
+  tenantId: string;
+  theocraticYear: number;
+}) {
+  const db = getDb();
+  const range = getTheocraticYearRange(input.theocraticYear);
+
+  const yearFilter = or(
+    and(
+      eq(monthlyReports.reportYear, range.startYear),
+      sql`${monthlyReports.reportMonth} >= ${range.startMonth}`,
+    ),
+    and(
+      eq(monthlyReports.reportYear, range.endYear),
+      sql`${monthlyReports.reportMonth} <= ${range.endMonth}`,
+    ),
+  );
+
+  const [totals, byStatus] = await Promise.all([
+    db
+      .select({
+        totalReports: count(monthlyReports.id),
+        totalParticipated: sum(sql<number>`case when ${monthlyReports.participated} then 1 else 0 end`),
+        totalHours: sum(sql<number>`coalesce(${monthlyReports.preachingHours}, 0)`),
+        totalBibleStudies: sum(monthlyReports.bibleStudies),
+      })
+      .from(monthlyReports)
+      .where(and(eq(monthlyReports.tenantId, input.tenantId), yearFilter)),
+    db
+      .select({
+        publisherStatus: monthlyReports.publisherStatus,
+        totalReports: count(monthlyReports.id),
+        totalParticipated: sum(sql<number>`case when ${monthlyReports.participated} then 1 else 0 end`),
+        totalHours: sum(sql<number>`coalesce(${monthlyReports.preachingHours}, 0)`),
+        totalBibleStudies: sum(monthlyReports.bibleStudies),
+      })
+      .from(monthlyReports)
+      .where(and(eq(monthlyReports.tenantId, input.tenantId), yearFilter))
+      .groupBy(monthlyReports.publisherStatus)
+      .orderBy(asc(monthlyReports.publisherStatus)),
+  ]);
+
+  const totalRow = totals[0];
+
+  return {
+    range,
+    totals: {
+      totalReports: Number(totalRow?.totalReports ?? 0),
+      totalParticipated: Number(totalRow?.totalParticipated ?? 0),
+      totalHours: Number(totalRow?.totalHours ?? 0),
+      totalBibleStudies: Number(totalRow?.totalBibleStudies ?? 0),
+    },
     byStatus: byStatus.map((row) => ({
       ...row,
       totalReports: Number(row.totalReports ?? 0),

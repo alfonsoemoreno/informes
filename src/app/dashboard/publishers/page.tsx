@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentAppContext } from "@/lib/app-context";
 import { canManagePublishers } from "@/lib/domain/permissions";
 import {
+  getPublisherReportingStates,
   listTenantGroups,
   listTenantPublishers,
   resolvePublisherStateForMonth,
@@ -51,6 +52,13 @@ export default async function PublishersPage({
   const year = now.getUTCFullYear();
   const month = now.getUTCMonth() + 1;
 
+  const reportingStates = await getPublisherReportingStates({
+    tenantId: membership.tenantId,
+    currentYear: year,
+    currentMonth: month,
+    publisherIds: tenantPublishers.map((publisher) => publisher.id),
+  });
+
   const publishers = await Promise.all(
     tenantPublishers.map(async (publisher) => {
       const currentState = await resolvePublisherStateForMonth({
@@ -64,6 +72,7 @@ export default async function PublishersPage({
         ...publisher,
         currentGroupName: currentState?.group.name ?? "Sin grupo vigente",
         currentStatus: currentState?.status ?? null,
+        reportingState: reportingStates.get(publisher.id) ?? "up_to_date",
       };
     }),
   );
