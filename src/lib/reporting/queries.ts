@@ -294,6 +294,87 @@ export async function listAccessiblePublishersForReports(input: {
   return states.filter((value): value is NonNullable<typeof value> => value !== null);
 }
 
+export async function getGroupReportSheet(input: {
+  tenantId: string;
+  groupId: string;
+  year: number;
+  month: number;
+}) {
+  const db = getDb();
+  const tenantPublisherRows = await listTenantPublishers(input.tenantId);
+
+  const resolvedRows = await Promise.all(
+    tenantPublisherRows.map(async (publisher) => {
+      const currentState = await resolvePublisherStateForMonth({
+        tenantId: input.tenantId,
+        publisherId: publisher.id,
+        year: input.year,
+        month: input.month,
+      });
+
+      if (!currentState || currentState.group.id !== input.groupId) {
+        return null;
+      }
+
+      return {
+        publisherId: publisher.id,
+        fullName: publisher.fullName,
+        publisherCode: publisher.publisherCode,
+        groupId: currentState.group.id,
+        groupName: currentState.group.name,
+        publisherStatus: currentState.status,
+      };
+    }),
+  );
+
+  const publishersInGroup = resolvedRows
+    .filter((value): value is NonNullable<typeof value> => value !== null)
+    .sort((left, right) => left.fullName.localeCompare(right.fullName, "es"));
+
+  const existingReports =
+    publishersInGroup.length === 0
+      ? []
+      : await db
+          .select({
+            id: monthlyReports.id,
+            publisherId: monthlyReports.publisherId,
+            participated: monthlyReports.participated,
+            preachingHours: monthlyReports.preachingHours,
+            bibleStudies: monthlyReports.bibleStudies,
+            notes: monthlyReports.notes,
+          })
+          .from(monthlyReports)
+          .where(
+            and(
+              eq(monthlyReports.tenantId, input.tenantId),
+              eq(monthlyReports.groupId, input.groupId),
+              eq(monthlyReports.reportYear, input.year),
+              eq(monthlyReports.reportMonth, input.month),
+              inArray(
+                monthlyReports.publisherId,
+                publishersInGroup.map((publisher) => publisher.publisherId),
+              ),
+            ),
+          );
+
+  const reportsByPublisher = new Map(
+    existingReports.map((report) => [report.publisherId, report]),
+  );
+
+  return publishersInGroup.map((publisher) => {
+    const existing = reportsByPublisher.get(publisher.publisherId);
+
+    return {
+      ...publisher,
+      existingReportId: existing?.id ?? null,
+      participated: existing?.participated ?? false,
+      preachingHours: existing?.preachingHours ?? null,
+      bibleStudies: existing?.bibleStudies ?? 0,
+      notes: existing?.notes ?? "",
+    };
+  });
+}
+
 export async function listRecentReports(tenantId: string, limit = 12) {
   const db = getDb();
 

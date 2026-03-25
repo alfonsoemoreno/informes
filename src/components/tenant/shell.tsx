@@ -14,6 +14,7 @@ import {
   GroupUsersIcon,
   HubIcon,
   LogoutIcon,
+  MenuIcon,
   ReportsIcon,
   SettingsIcon,
 } from "@/components/superadmin/icons";
@@ -46,6 +47,7 @@ export function TenantShell({
   const pathname = usePathname();
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   async function handleSignOut() {
     if (isSigningOut) {
@@ -65,9 +67,13 @@ export function TenantShell({
     }
   }
 
+  function handleNavigate() {
+    setIsMenuOpen(false);
+  }
+
   return (
     <div className="tenant-shell">
-      <aside className="tenant-sidebar">
+      <aside className={`tenant-sidebar ${isMenuOpen ? "mobile-open" : ""}`}>
         <div className="tenant-sidebar-inner">
           <div className="tenant-brand">
             <div className="tenant-brand-mark">
@@ -92,6 +98,7 @@ export function TenantShell({
                   key={item.href}
                   href={item.href}
                   className={isActive ? "tenant-nav-link active" : "tenant-nav-link"}
+                  onClick={handleNavigate}
                 >
                   <Icon className="tenant-nav-icon" />
                   <span>{item.label}</span>
@@ -101,7 +108,7 @@ export function TenantShell({
           </nav>
 
           <div className="tenant-sidebar-footer">
-            <Link className="tenant-footer-link" href="/account/settings">
+            <Link className="tenant-footer-link" href="/account/settings" onClick={handleNavigate}>
               <SettingsIcon className="tenant-footer-icon" />
               <span>Configuracion</span>
             </Link>
@@ -116,7 +123,15 @@ export function TenantShell({
 
       <main className="tenant-main">
         <header className="tenant-topbar">
-          <div className="tenant-topbar-brand">
+          <div className="tenant-topbar-brand tenant-topbar-brand-row">
+            <button
+              className="shell-mobile-toggle"
+              type="button"
+              onClick={() => setIsMenuOpen((value) => !value)}
+              aria-label="Abrir menu"
+            >
+              <MenuIcon className="shell-mobile-toggle-icon" />
+            </button>
             <strong>Congregation Admin</strong>
           </div>
 
@@ -139,6 +154,15 @@ export function TenantShell({
 
         <div className="tenant-content">{children}</div>
       </main>
+
+      {isMenuOpen ? (
+        <button
+          className="shell-mobile-backdrop"
+          type="button"
+          aria-label="Cerrar menu"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

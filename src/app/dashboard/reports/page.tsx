@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  AssignmentIcon,
-  GroupUsersIcon,
+  ChevronDownIcon,
   ReportsIcon,
 } from "@/components/superadmin/icons";
 import { getCurrentAppContext } from "@/lib/app-context";
@@ -13,11 +12,22 @@ import {
 } from "@/lib/domain/permissions";
 import { formatMonthYear } from "@/lib/domain/periods";
 import {
-  getMonthlySummary,
-  listAccessiblePublishersForReports,
-  listRecentReports,
+  getGroupReportSheet,
+  listTenantGroups,
 } from "@/lib/reporting/queries";
-import { createMonthlyReportAction } from "@/app/dashboard/reports/actions";
+import { saveGroupMonthlyReportsAction } from "@/app/dashboard/reports/actions";
+
+const monthOptions = Array.from({ length: 12 }, (_, index) => {
+  const month = index + 1;
+
+  return {
+    value: month,
+    label: new Intl.DateTimeFormat("es-CL", {
+      month: "long",
+      timeZone: "UTC",
+    }).format(new Date(Date.UTC(2026, index, 1))),
+  };
+});
 
 function getCurrentPeriod() {
   const now = new Date();
@@ -39,6 +49,10 @@ export default async function ReportsPage({
   const message =
     typeof resolvedSearchParams.message === "string" ? resolvedSearchParams.message : null;
   const currentPeriod = getCurrentPeriod();
+  const yearOptions = Array.from(
+    { length: currentPeriod.year + 2 - 2020 },
+    (_, index) => 2020 + index,
+  ).reverse();
   const selectedMonth =
     typeof resolvedSearchParams.month === "string"
       ? Number(resolvedSearchParams.month)
@@ -77,23 +91,35 @@ export default async function ReportsPage({
     );
   }
 
-  const [accessiblePublishers, recentReports, summary] = await Promise.all([
-    listAccessiblePublishersForReports({
-      tenantId: membership.tenantId,
-      role: membership.role,
-      groupId: membership.groupId,
-      year: selectedYear,
-      month: selectedMonth,
-    }),
-    listRecentReports(membership.tenantId),
-    getMonthlySummary({
-      tenantId: membership.tenantId,
-      year: selectedYear,
-      month: selectedMonth,
-    }),
-  ]);
+  const allGroups = await listTenantGroups(membership.tenantId);
+  const availableGroups =
+    membership.role === "group_overseer" || membership.role === "group_assistant"
+      ? allGroups.filter((group) => group.id === membership.groupId)
+      : allGroups;
 
-  const canSubmit = canSubmitReports(membership.role);
+  const selectedGroupId =
+    typeof resolvedSearchParams.groupId === "string" &&
+    availableGroups.some((group) => group.id === resolvedSearchParams.groupId)
+      ? resolvedSearchParams.groupId
+      : (availableGroups[0]?.id ?? null);
+
+  const reportSheet = await (selectedGroupId
+      ? getGroupReportSheet({
+          tenantId: membership.tenantId,
+          groupId: selectedGroupId,
+          year: selectedYear,
+          month: selectedMonth,
+        })
+      : Promise.resolve([]));
+
+  const canEditSelectedGroup =
+    canSubmitReports(membership.role) &&
+    (!selectedGroupId ||
+      membership.role === "secretary" ||
+      membership.groupId === selectedGroupId);
+
+  const selectedGroupName =
+    availableGroups.find((group) => group.id === selectedGroupId)?.name ?? "Sin grupo";
 
   return (
     <div className="reports-page">
@@ -102,26 +128,17 @@ export default async function ReportsPage({
           <span className="tenant-page-eyebrow">Informes</span>
           <h1>Informes mensuales</h1>
           <p>
-            Rol activo: {getRoleLabel(membership.role)}. Los precursores marcan participacion
-            automaticamente y exigen horas; los publicadores solo informan participacion,
-            cursos y observaciones.
+            Rol activo: {getRoleLabel(membership.role)}. Selecciona el período y el grupo
+            para ver o cargar los informes completos de sus publicadores.
           </p>
         </div>
 
         <div className="tenant-page-header-actions">
-          <div className="tenant-stat-card">
-            <div className="tenant-stat-icon">
-              <ReportsIcon className="tenant-stat-icon-svg" />
-            </div>
-            <div>
-              <p className="tenant-stat-value">{summary.totals.totalReports}</p>
-              <p className="tenant-stat-label">Informes del periodo</p>
-            </div>
-          </div>
-
           <Link
             className="tenant-inline-link-button reports-current-link"
-            href={`/dashboard/reports?month=${currentPeriod.month}&year=${currentPeriod.year}`}
+            href={`/dashboard/reports?month=${currentPeriod.month}&year=${currentPeriod.year}${
+              selectedGroupId ? `&groupId=${selectedGroupId}` : ""
+            }`}
           >
             Ir al mes actual
           </Link>
@@ -138,258 +155,190 @@ export default async function ReportsPage({
         <div>
           <span className="tenant-page-eyebrow">Periodo activo</span>
           <h2>{formatMonthYear(selectedYear, selectedMonth)}</h2>
+          <p className="reports-period-subtitle">Grupo seleccionado: {selectedGroupName}</p>
         </div>
 
         <form method="get" className="reports-period-form">
           <div className="field">
             <label htmlFor="monthFilter">Mes</label>
-            <input
-              id="monthFilter"
-              name="month"
-              type="number"
-              min="1"
-              max="12"
-              defaultValue={selectedMonth}
-            />
+            <div className="reports-select-shell">
+              <select id="monthFilter" name="month" defaultValue={String(selectedMonth)}>
+                {monthOptions.map((monthOption) => (
+                  <option key={monthOption.value} value={monthOption.value}>
+                    {monthOption.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="reports-select-icon" />
+            </div>
           </div>
           <div className="field">
-            <label htmlFor="yearFilter">Anio</label>
-            <input id="yearFilter" name="year" type="number" defaultValue={selectedYear} />
+            <label htmlFor="yearFilter">Año</label>
+            <div className="reports-select-shell">
+              <select id="yearFilter" name="year" defaultValue={String(selectedYear)}>
+                {yearOptions.map((yearOption) => (
+                  <option key={yearOption} value={yearOption}>
+                    {yearOption}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="reports-select-icon" />
+            </div>
+          </div>
+          <div className="field reports-group-field">
+            <label htmlFor="groupFilter">Grupo</label>
+            <div className="reports-select-shell">
+              <select id="groupFilter" name="groupId" defaultValue={selectedGroupId ?? ""}>
+                {availableGroups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="reports-select-icon" />
+            </div>
           </div>
           <button className="tenant-inline-link-button" type="submit">
-            Ver resumen
+            Ver grupo
           </button>
         </form>
       </section>
 
       <section className="tenant-publisher-stats-grid">
         <article className="tenant-publisher-stat">
-          <span>Informes</span>
-          <strong>{summary.totals.totalReports}</strong>
+          <span>Grupo seleccionado</span>
+          <strong>{selectedGroupName}</strong>
         </article>
         <article className="tenant-publisher-stat">
-          <span>Participaron</span>
-          <strong>{summary.totals.totalParticipated}</strong>
+          <span>Periodo</span>
+          <strong>{formatMonthYear(selectedYear, selectedMonth)}</strong>
         </article>
         <article className="tenant-publisher-stat">
-          <span>Horas</span>
-          <strong>{summary.totals.totalHours}</strong>
+          <span>Publicadores del grupo</span>
+          <strong>{reportSheet.length}</strong>
         </article>
         <article className="tenant-publisher-stat">
-          <span>Cursos</span>
-          <strong>{summary.totals.totalBibleStudies}</strong>
+          <span>Modo</span>
+          <strong>{canEditSelectedGroup ? "Edición" : "Consulta"}</strong>
         </article>
       </section>
 
-      <section className="reports-summary-grid">
-        <article className="publisher-detail-table-card">
-          <div className="publisher-detail-table-header">
-            <GroupUsersIcon className="publisher-detail-table-icon" />
-            <div>
-              <h2>Resumen por grupo</h2>
-              <p>{summary.byGroup.length} grupos</p>
-            </div>
-          </div>
-
-          {summary.byGroup.length === 0 ? (
-            <div className="empty-state">No hay informes para este periodo.</div>
-          ) : (
-            <div className="tenant-users-table-wrap">
-              <table className="tenant-users-table">
-                <thead>
-                  <tr>
-                    <th>Grupo</th>
-                    <th>Informes</th>
-                    <th>Participaron</th>
-                    <th>Horas</th>
-                    <th>Cursos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {summary.byGroup.map((group) => (
-                    <tr key={group.groupId}>
-                      <td>{group.groupName}</td>
-                      <td>{group.totalReports}</td>
-                      <td>{group.totalParticipated}</td>
-                      <td>{group.totalHours}</td>
-                      <td>{group.totalBibleStudies}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </article>
-
-        <article className="publisher-detail-table-card">
-          <div className="publisher-detail-table-header">
-            <AssignmentIcon className="publisher-detail-table-icon" />
-            <div>
-              <h2>Resumen por tipo</h2>
-              <p>{summary.byStatus.length} tipos</p>
-            </div>
-          </div>
-
-          {summary.byStatus.length === 0 ? (
-            <div className="empty-state">No hay informes para este periodo.</div>
-          ) : (
-            <div className="tenant-users-table-wrap">
-              <table className="tenant-users-table">
-                <thead>
-                  <tr>
-                    <th>Tipo</th>
-                    <th>Informes</th>
-                    <th>Participaron</th>
-                    <th>Horas</th>
-                    <th>Cursos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {summary.byStatus.map((item) => (
-                    <tr key={item.publisherStatus}>
-                      <td>{getPublisherStatusLabel(item.publisherStatus)}</td>
-                      <td>{item.totalReports}</td>
-                      <td>{item.totalParticipated}</td>
-                      <td>{item.totalHours}</td>
-                      <td>{item.totalBibleStudies}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </article>
-      </section>
-
-      {canSubmit ? (
-        <section className="publisher-detail-form-card reports-form-card">
-          <div className="publisher-detail-form-header">
-            <ReportsIcon className="publisher-detail-side-icon" />
-            <h2>Cargar informe</h2>
-          </div>
-
-          <form action={createMonthlyReportAction} className="reports-form">
-            <div className="field">
-              <label htmlFor="publisherId">Publicador</label>
-              <select id="publisherId" name="publisherId" required defaultValue="">
-                <option value="" disabled>
-                  Selecciona un publicador
-                </option>
-                {accessiblePublishers.map((publisher) => (
-                  <option key={publisher.id} value={publisher.id}>
-                    {publisher.fullName} · {publisher.groupName} · {getPublisherStatusLabel(publisher.status)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="reports-form-grid">
-              <div className="field">
-                <label htmlFor="reportMonth">Mes</label>
-                <input
-                  id="reportMonth"
-                  name="reportMonth"
-                  type="number"
-                  min="1"
-                  max="12"
-                  defaultValue={selectedMonth}
-                  required
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="reportYear">Anio</label>
-                <input
-                  id="reportYear"
-                  name="reportYear"
-                  type="number"
-                  defaultValue={selectedYear}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="reports-form-grid">
-              <div className="field">
-                <label htmlFor="preachingHours">Horas</label>
-                <input id="preachingHours" name="preachingHours" type="number" min="0" step="0.25" />
-              </div>
-              <div className="field">
-                <label htmlFor="bibleStudies">Cursos biblicos</label>
-                <input
-                  id="bibleStudies"
-                  name="bibleStudies"
-                  type="number"
-                  min="0"
-                  defaultValue="0"
-                  required
-                />
-              </div>
-            </div>
-
-            <label className="reports-checkbox">
-              <input id="participated" name="participated" type="checkbox" />
-              <span>Participo este mes en alguna actividad de predicacion</span>
-            </label>
-
-            <div className="field">
-              <label htmlFor="notes">Observaciones</label>
-              <textarea id="notes" name="notes" rows={3} />
-            </div>
-
-            <button className="publisher-detail-primary-button" type="submit">
-              Guardar informe
-            </button>
-          </form>
-        </section>
-      ) : (
-        <section className="publisher-detail-table-card">
-          <div className="empty-state">
-            Tu rol es de solo lectura. Puedes revisar historial y resumenes, pero no subir informes.
-          </div>
-        </section>
-      )}
-
-      <section className="publisher-detail-table-card">
+      <section className="publisher-detail-table-card reports-sheet-card">
         <div className="publisher-detail-table-header">
           <ReportsIcon className="publisher-detail-table-icon" />
           <div>
-            <h2>Historial reciente</h2>
-            <p>{recentReports.length} informes recientes</p>
+            <h2>{canEditSelectedGroup ? "Cargar informe" : "Ver informe"}</h2>
+            <p>
+              {reportSheet.length} publicadores asociados a {selectedGroupName} en{" "}
+              {formatMonthYear(selectedYear, selectedMonth)}.
+            </p>
           </div>
         </div>
 
-        {recentReports.length === 0 ? (
-          <div className="empty-state">Todavia no hay informes registrados en este tenant.</div>
-        ) : (
-          <div className="tenant-users-table-wrap">
-            <table className="tenant-users-table">
-              <thead>
-                <tr>
-                  <th>Periodo</th>
-                  <th>Publicador</th>
-                  <th>Grupo</th>
-                  <th>Estado</th>
-                  <th>Detalle</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentReports.map((report) => (
-                  <tr key={report.id}>
-                    <td>{formatMonthYear(report.reportYear, report.reportMonth)}</td>
-                    <td>{report.publisherName}</td>
-                    <td>{report.groupName}</td>
-                    <td>{getPublisherStatusLabel(report.publisherStatus)}</td>
-                    <td>
-                      Participo: {report.participated ? "Si" : "No"} · Horas:{" "}
-                      {report.preachingHours ?? "-"} · Cursos: {report.bibleStudies}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {selectedGroupId === null ? (
+          <div className="empty-state">No hay grupos disponibles para este usuario.</div>
+        ) : reportSheet.length === 0 ? (
+          <div className="empty-state">
+            No hay publicadores vigentes en este grupo para el periodo seleccionado.
           </div>
+        ) : (
+          <form action={saveGroupMonthlyReportsAction} className="reports-sheet-form">
+            <input type="hidden" name="groupId" value={selectedGroupId} />
+            <input type="hidden" name="reportMonth" value={selectedMonth} />
+            <input type="hidden" name="reportYear" value={selectedYear} />
+
+            <div className="tenant-users-table-wrap">
+              <table className="tenant-users-table reports-entry-table">
+                <thead>
+                  <tr>
+                    <th>Publicador</th>
+                    <th>Tipo</th>
+                    <th className="reports-col-hours">Horas</th>
+                    <th className="reports-col-participated">Participó</th>
+                    <th className="reports-col-studies">Cursos bíblicos</th>
+                    <th className="reports-col-notes">Observaciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportSheet.map((entry) => (
+                    <tr key={entry.publisherId}>
+                      <td>
+                        <input type="hidden" name="publisherIds" value={entry.publisherId} />
+                        <div className="reports-sheet-publisher">
+                          <strong>{entry.fullName}</strong>
+                          <span>{entry.publisherCode ?? "Sin código"} · {entry.groupName}</span>
+                        </div>
+                      </td>
+                      <td>{getPublisherStatusLabel(entry.publisherStatus)}</td>
+                      <td className="reports-col-hours">
+                        <input
+                          className="reports-sheet-input reports-sheet-input-compact"
+                          name={`preachingHours:${entry.publisherId}`}
+                          type="number"
+                          min="0"
+                          step="1"
+                          defaultValue={entry.preachingHours ?? ""}
+                          disabled={!canEditSelectedGroup || entry.publisherStatus === "publisher"}
+                        />
+                      </td>
+                      <td className="reports-col-participated">
+                        <label className="reports-table-switch">
+                          <input
+                            name={`participated:${entry.publisherId}`}
+                            type="checkbox"
+                            defaultChecked={
+                              entry.publisherStatus === "publisher"
+                                ? entry.participated
+                                : true
+                            }
+                            disabled={!canEditSelectedGroup || entry.publisherStatus !== "publisher"}
+                          />
+                          <span className="switch-track" aria-hidden="true">
+                            <span className="switch-thumb" />
+                          </span>
+                        </label>
+                      </td>
+                      <td className="reports-col-studies">
+                        <input
+                          className="reports-sheet-input reports-sheet-input-compact"
+                          name={`bibleStudies:${entry.publisherId}`}
+                          type="number"
+                          min="0"
+                          defaultValue={entry.bibleStudies}
+                          disabled={!canEditSelectedGroup}
+                        />
+                      </td>
+                      <td className="reports-col-notes">
+                        <input
+                          className="reports-sheet-input reports-sheet-input-notes"
+                          name={`notes:${entry.publisherId}`}
+                          type="text"
+                          defaultValue={entry.notes}
+                          disabled={!canEditSelectedGroup}
+                          placeholder="Observaciones"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {canEditSelectedGroup ? (
+              <div className="reports-sheet-actions">
+                <button className="publisher-detail-primary-button" type="submit">
+                  Guardar informes
+                </button>
+              </div>
+            ) : (
+              <div className="empty-state">
+                Tu rol puede revisar estos informes, pero no modificarlos.
+              </div>
+            )}
+          </form>
         )}
       </section>
+
     </div>
   );
 }

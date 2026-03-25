@@ -9,6 +9,7 @@ import {
   ApartmentIcon,
   AssignmentIcon,
   BadgeIcon,
+  MenuIcon,
   SettingsIcon,
 } from "@/components/superadmin/icons";
 
@@ -43,6 +44,7 @@ export function SuperadminShell({
   const pathname = usePathname();
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   async function handleSignOut() {
     if (isSigningOut) {
@@ -62,9 +64,13 @@ export function SuperadminShell({
     }
   }
 
+  function handleNavigate() {
+    setIsMenuOpen(false);
+  }
+
   return (
     <div className="superadmin-shell">
-      <aside className="superadmin-sidebar">
+      <aside className={`superadmin-sidebar ${isMenuOpen ? "mobile-open" : ""}`}>
         <div className="superadmin-sidebar-inner">
           <div className="superadmin-brand">
             <strong>Super Admin</strong>
@@ -81,6 +87,7 @@ export function SuperadminShell({
                   key={item.href}
                   href={item.href}
                   className={isActive ? "superadmin-nav-link active" : "superadmin-nav-link"}
+                  onClick={handleNavigate}
                 >
                   <Icon className="superadmin-nav-icon" />
                   {item.label}
@@ -90,7 +97,7 @@ export function SuperadminShell({
           </nav>
 
           <div className="superadmin-sidebar-footer">
-            <Link className="superadmin-settings-link" href="/account/settings">
+            <Link className="superadmin-settings-link" href="/account/settings" onClick={handleNavigate}>
               <SettingsIcon className="superadmin-settings-icon" />
               <span>Configuracion</span>
             </Link>
@@ -117,7 +124,15 @@ export function SuperadminShell({
 
       <main className="superadmin-main">
         <header className="superadmin-topbar">
-          <div className="superadmin-topbar-brand">
+          <div className="superadmin-topbar-brand superadmin-topbar-brand-row">
+            <button
+              className="shell-mobile-toggle"
+              type="button"
+              onClick={() => setIsMenuOpen((value) => !value)}
+              aria-label="Abrir menu"
+            >
+              <MenuIcon className="shell-mobile-toggle-icon" />
+            </button>
             <strong>Informes de Predicacion</strong>
           </div>
 
@@ -148,6 +163,15 @@ export function SuperadminShell({
 
         <div className="superadmin-content">{children}</div>
       </main>
+
+      {isMenuOpen ? (
+        <button
+          className="shell-mobile-backdrop"
+          type="button"
+          aria-label="Cerrar menu"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

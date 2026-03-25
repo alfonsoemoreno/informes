@@ -2,8 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { count, eq } from "drizzle-orm";
 import {
+  AssignmentIcon,
   BookIcon,
   DashboardIcon,
+  GroupUsersIcon,
   HubIcon,
   ReportsIcon,
 } from "@/components/superadmin/icons";
@@ -20,6 +22,7 @@ import { publisherStatuses, statusRequiresHours } from "@/lib/domain/reporting";
 import {
   getMonthlySummary,
   getTheocraticYearSummary,
+  listRecentReports,
   listTenantPublishers,
   resolvePublisherStateForMonth,
 } from "@/lib/reporting/queries";
@@ -74,6 +77,7 @@ export default async function DashboardPage() {
     reportCountResult,
     monthSummary,
     theocraticYearSummary,
+    recentReports,
     tenantPublisherRows,
   ] =
     await Promise.all([
@@ -98,6 +102,7 @@ export default async function DashboardPage() {
       tenantId: membership.tenantId,
       theocraticYear: currentTheocraticYear,
     }),
+    listRecentReports(membership.tenantId),
     listTenantPublishers(membership.tenantId),
   ]);
 
@@ -375,6 +380,128 @@ export default async function DashboardPage() {
           <span>{activeRosterCount} activos este mes</span>
           <span>{getRoleLabel(membership.role)}</span>
         </div>
+      </section>
+
+      <section className="reports-summary-grid">
+        <article className="publisher-detail-table-card">
+          <div className="publisher-detail-table-header">
+            <GroupUsersIcon className="publisher-detail-table-icon" />
+            <div>
+              <h2>Resumen por grupo</h2>
+              <p>{monthSummary.byGroup.length} grupos</p>
+            </div>
+          </div>
+
+          {monthSummary.byGroup.length === 0 ? (
+            <div className="empty-state">No hay informes para este periodo.</div>
+          ) : (
+            <div className="tenant-users-table-wrap">
+              <table className="tenant-users-table">
+                <thead>
+                  <tr>
+                    <th>Grupo</th>
+                    <th>Informes</th>
+                    <th>Participaron</th>
+                    <th>Horas</th>
+                    <th>Cursos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthSummary.byGroup.map((group) => (
+                    <tr key={group.groupId}>
+                      <td>{group.groupName}</td>
+                      <td>{group.totalReports}</td>
+                      <td>{group.totalParticipated}</td>
+                      <td>{group.totalHours}</td>
+                      <td>{group.totalBibleStudies}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </article>
+
+        <article className="publisher-detail-table-card">
+          <div className="publisher-detail-table-header">
+            <AssignmentIcon className="publisher-detail-table-icon" />
+            <div>
+              <h2>Resumen por tipo</h2>
+              <p>{monthSummary.byStatus.length} tipos</p>
+            </div>
+          </div>
+
+          {monthSummary.byStatus.length === 0 ? (
+            <div className="empty-state">No hay informes para este periodo.</div>
+          ) : (
+            <div className="tenant-users-table-wrap">
+              <table className="tenant-users-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Informes</th>
+                    <th>Participaron</th>
+                    <th>Horas</th>
+                    <th>Cursos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthSummary.byStatus.map((item) => (
+                    <tr key={item.publisherStatus}>
+                      <td>{getPublisherStatusLabel(item.publisherStatus)}</td>
+                      <td>{item.totalReports}</td>
+                      <td>{item.totalParticipated}</td>
+                      <td>{item.totalHours}</td>
+                      <td>{item.totalBibleStudies}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </article>
+      </section>
+
+      <section className="publisher-detail-table-card">
+        <div className="publisher-detail-table-header">
+          <ReportsIcon className="publisher-detail-table-icon" />
+          <div>
+            <h2>Historial reciente</h2>
+            <p>{recentReports.length} informes recientes</p>
+          </div>
+        </div>
+
+        {recentReports.length === 0 ? (
+          <div className="empty-state">Todavia no hay informes registrados en este tenant.</div>
+        ) : (
+          <div className="tenant-users-table-wrap">
+            <table className="tenant-users-table">
+              <thead>
+                <tr>
+                  <th>Periodo</th>
+                  <th>Publicador</th>
+                  <th>Grupo</th>
+                  <th>Estado</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentReports.map((report) => (
+                  <tr key={report.id}>
+                    <td>{formatMonthYear(report.reportYear, report.reportMonth)}</td>
+                    <td>{report.publisherName}</td>
+                    <td>{report.groupName}</td>
+                    <td>{getPublisherStatusLabel(report.publisherStatus)}</td>
+                    <td>
+                      Participó: {report.participated ? "Sí" : "No"} · Horas:{" "}
+                      {report.preachingHours ?? "-"} · Cursos: {report.bibleStudies}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );
